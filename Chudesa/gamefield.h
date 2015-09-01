@@ -1,7 +1,7 @@
 /*
  * gamefield.h - header unit for TGameField class
- * @Author Vasiliy A. Ponomarjov March 16, 2015
- * @modified Vasiliy A. Ponomarjov March 25, 2015
+ * @Author Vasiliy A. Ponomarjov August 31, 2015
+ * @modified Vasiliy A. Ponomarjov September 01, 2015
  * @email vas@vingrad.ru
 */
 
