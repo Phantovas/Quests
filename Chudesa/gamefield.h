@@ -56,9 +56,8 @@ TGameField::TGameField(char* AWord, uint8_t ALatchPin, uint8_t AClockPin, uint8_
   this->_latchPin = ALatchPin;
   this->_clockPin = AClockPin;
   this->_dataPin = ADataPin;
-  //открыто букв 0
+  //сбрасываем
   this->_countOpenLetter = 0;
-  //читаем маску
   this->_loadMask();  
 }
 
@@ -67,9 +66,9 @@ TGameField::TGameField(char* AWord, uint8_t ALatchPin, uint8_t AClockPin, uint8_
  */
 void TGameField::reset() {
   //тушим все
-  this->_changeStateAll(LOW);
   this->_countOpenLetter = 0;
   this->_loadMask();  
+  this->_changeStateAll(LOW);
 }
 
 //<editor-fold defaultstate="collapsed" desc="PRIVATE METHODS">
@@ -130,15 +129,9 @@ void TGameField::_setStatePin(byte APin, int AState) {
   //считаем номер строки, в которой надо поменять бит
   uint8_t _num = APin/SIZE_ELEMENT;
   // устанавливаем значение в соответствующий бит (whichPin - _num * SIZE_ELEMENT --> 15 - 1*8 = 15 - 8 = 7) 
-  Serial.print("matrix");
   bitWrite(this->MatrixState[_num], APin - _num * SIZE_ELEMENT, AState);
   //применяем маску состояний
   this->MatrixState[_num] &= ~this->MatrixMask[_num]; 
-  for(int i=0;i<SIZE_MATRIX * SIZE_ELEMENT; i++) {
-    Serial.print(i);
-    Serial.print(" = ");
-    Serial.println(this->MatrixState[i/SIZE_ELEMENT]);
-  }
   //записываем в регистры
   TGameField::writeState();
 }
@@ -214,7 +207,6 @@ bool TGameField::checkLetter(char AValue) {
   bool result = false;
   //проверяем все буквы
   for (int i = 0; i < this->getWordLength(); i++) {
-    Serial.println(this->_word[i]);
     if ((AValue == this->_word[i]) && !this->_getPinState(i)) {
       this->_setStatePin(i, 1);
       this->_countOpenLetter++;
@@ -229,6 +221,7 @@ bool TGameField::checkLetter(char AValue) {
  * @param ACount число раз 
  */
 void TGameField::blinking(uint8_t ACount) {
+  TGameField::_changeStateAll(HIGH);
   for (int8_t i = 0; i < ACount * 2; i++) {
     if (i & 1) {
       //нечетное тушим
