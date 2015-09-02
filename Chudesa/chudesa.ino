@@ -5,7 +5,7 @@
  * @email vas@vingrad.ru
 */
 
-#define DEBUG
+//#define DEBUG
 
 /**
 * Системные модули
@@ -25,6 +25,7 @@
  * Модули
  */
 #include "gamefield.h"
+#include "rfid.h"
 #include "vars.h"
 #include "functions.h"
 
@@ -47,6 +48,9 @@ void setup() {
   //пин занятости плеера
   pinMode(BUSY, INPUT);
   digitalWrite(BUSY, HIGH);
+  //пин открытия двери
+  pinMode(DOOR_PIN, OUTPUT);
+  digitalWrite(DOOR_PIN, LOW);
   //запускаем игру
   startGame();
 }
@@ -63,9 +67,9 @@ void loop() {
         key = Keyboard.read(); //читаем клавиши
         if (key != prevKey) {
           prevKey = key;
-  #ifdef DEBUG
+#ifdef DEBUG
           Serial.print("key "); Serial.println(key);
-  #endif
+#endif
           //проверяем вхождение буквыв строку
           if (GameField.checkLetter(key)) {
             //угадали
@@ -77,9 +81,6 @@ void loop() {
           }
           //уменьшаем число попыток
           count_try--;
-  #ifdef DEBUG
-          Serial.print("try "); Serial.println(count_try);
-  #endif
           playSound(count_try, true);
           //очищение буфера клавы
           clearPSBuffer();
@@ -87,12 +88,31 @@ void loop() {
       }
     } else {
       //читаем matrixII
-      //mp3_play(3);
+      if (Rfid.avalaible()) {
+        byte* addr;
+        addr = Rfid.read();
+        count_try = getTryCount(addr);
+#ifdef DEBUG
+        Serial.println("trys ");
+        Serial.println(count_try);
+#endif
+        playSound(count_try, true);
+      }
     }
   } else {
+#ifdef DEBUG
+    Serial.println("game over");
+#endif
     //конец иры, открыто все
+    digitalWrite(DOOR_PIN, HIGH);
+   //зажигаем все
+    GameField.changeStateAll(HIGH);
     //моргаем COUNT_BLINK_SUCCESS раз
     GameField.blinking(COUNT_BLINK_SUCCESS);
+    //зажигаем все
+    GameField.changeStateAll(HIGH);
+    //задержка на открыть дверь
+    delay(OPEN_TIME);
     //теперь все тушим
     GameField.reset();
   }  

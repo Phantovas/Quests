@@ -29,7 +29,6 @@ private:
   //функции
   void _loadMask();
   void _clearMask();
-  void _changeStateAll(int AState);
   void _setStatePin(byte APin, int AState);
   bool _getPinState(byte APin);
 public:
@@ -39,6 +38,7 @@ public:
   void startWrite();
   void stopWrite();
   void writeState();
+  void changeStateAll(int AState);
   char* getWord();
   uint8_t getWordLength();
   uint8_t getCountOpenLetter();
@@ -68,7 +68,7 @@ void TGameField::reset() {
   //тушим все
   this->_countOpenLetter = 0;
   this->_loadMask();  
-  this->_changeStateAll(LOW);
+  this->changeStateAll(LOW);
 }
 
 //<editor-fold defaultstate="collapsed" desc="PRIVATE METHODS">
@@ -98,26 +98,6 @@ void TGameField::_clearMask() {
   for (int i = 0; i < SIZE_MATRIX; i++) {
     this->MatrixMask[i] = 0x00;
   }
-}
-
-/**
- * Функция сброса состояний регистров
- * @param AState устанавливаемо значение LOW (погасить) !LOW зажечь
- */
-void TGameField::_changeStateAll(int AState) {
-  //для установки состояний всех выходов
-  int _state;
-  //проверяем заданное состояние, если LOW тушим все, иначе зажигаем
-  if (AState == LOW)
-    _state = 0x00;
-  else
-    _state = 0xFF;
-  //устанавливаем новое значение массива состояний с маской
-  for (int i = SIZE_MATRIX; i >= 0; i--) {
-    this->MatrixState[i] = _state & ~this->MatrixMask[i];  
-  }
-  //загоняем в регистры
-  TGameField::writeState();
 }
 
 /**
@@ -175,6 +155,26 @@ void TGameField::writeState() {
 }
 
 /**
+ * Функция сброса состояний регистров
+ * @param AState устанавливаемо значение LOW (погасить) !LOW зажечь
+ */
+void TGameField::changeStateAll(int AState) {
+  //для установки состояний всех выходов
+  int _state;
+  //проверяем заданное состояние, если LOW тушим все, иначе зажигаем
+  if (AState == LOW)
+    _state = 0x00;
+  else
+    _state = 0xFF;
+  //устанавливаем новое значение массива состояний с маской
+  for (int i = SIZE_MATRIX; i >= 0; i--) {
+    this->MatrixState[i] = _state & ~this->MatrixMask[i];  
+  }
+  //загоняем в регистры
+  TGameField::writeState();
+}
+
+/**
  * Функция возвращает загаданное слово
  * @return 
  */
@@ -221,7 +221,7 @@ bool TGameField::checkLetter(char AValue) {
  * @param ACount число раз 
  */
 void TGameField::blinking(uint8_t ACount) {
-  TGameField::_changeStateAll(HIGH);
+  //моргаем
   for (int8_t i = 0; i < ACount * 2; i++) {
     if (i & 1) {
       //нечетное тушим
