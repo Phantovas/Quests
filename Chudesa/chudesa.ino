@@ -24,8 +24,8 @@
 /**
  * Модули
  */
-#include "gamefield.h"
-#include "rfid.h"
+#include "cdreamfield.h"
+#include "crfid.h"
 #include "vars.h"
 #include "functions.h"
 
@@ -82,6 +82,9 @@ void loop() {
           //уменьшаем число попыток
           count_try--;
           playSound(count_try, true);
+          if (count_try > 0) {
+            playSound(MP3_CALL_LETTER, true);
+          }
           //очищение буфера клавы
           clearPSBuffer();
         }
@@ -96,7 +99,12 @@ void loop() {
         Serial.println("trys ");
         Serial.println(count_try);
 #endif
+        //говорим считанное число попыток
         playSound(count_try, true);
+        //если попытки есть, то и предланаем назвать букву
+        if (count_try > 0) {
+          playSound(MP3_CALL_LETTER, true);
+        }
       }
     }
   } else {

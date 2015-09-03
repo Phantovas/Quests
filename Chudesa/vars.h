@@ -10,8 +10,10 @@ char SECRET_WORD[] = "pfuflrf"; //слово "загадка"
 /******************************************************************************/
 /***************НОМЕРА МЕЛОДИЙ*************************************************/
 //число попыток должны соответствовать названиям файлов 
-#define MP3_FOUND_LETTER 4 //открыта буква
-#define MP3_NOTFOUND_LETTER 5 //нет такой буквы
+#define MP3_INTRO 4 //мелодия приветсвия
+#define MP3_CALL_LETTER 5 //мелодия просьбы назвать букву
+#define MP3_FOUND_LETTER 6 //открыта буква
+#define MP3_NOTFOUND_LETTER 7 //нет такой буквы
 /******************************************************************************/
 #define COUNT_BLINK_SUCCESS 10 //число морганий при успешном завершении игры
 #define OPEN_TIME 10000 //время ожидания после завершения квеста
@@ -49,7 +51,7 @@ char key;    //нажатая клавиша
 char prevKey; //предыдущая нажатая клавиша
 
 //игровое поле
-TGameField GameField(SECRET_WORD, LATCH_PIN, CLOCK_PIN, DATA_PIN);
+TDreamField GameField(SECRET_WORD, LATCH_PIN, CLOCK_PIN, DATA_PIN);
 
 //число попыток
 uint8_t count_try = 3;

@@ -14,7 +14,7 @@
 /**
  * Структура игрового поля
  */
-struct TGameField {
+struct TDreamField {
 private:
   char* _word; //загаданное слово
   uint8_t _latchPin;  //пин закрытия
@@ -33,7 +33,7 @@ private:
   bool _getPinState(byte APin);
 public:
   //функции
-  TGameField(char* AWord, uint8_t ALatchPin, uint8_t AClockPin, uint8_t ADataPin);
+  TDreamField(char* AWord, uint8_t ALatchPin, uint8_t AClockPin, uint8_t ADataPin);
   void reset();
   void startWrite();
   void stopWrite();
@@ -49,7 +49,7 @@ public:
 /**
  * Constructor
  */
-TGameField::TGameField(char* AWord, uint8_t ALatchPin, uint8_t AClockPin, uint8_t ADataPin) {
+TDreamField::TDreamField(char* AWord, uint8_t ALatchPin, uint8_t AClockPin, uint8_t ADataPin) {
   //слово
   this->_word = AWord;
   //необходимые пиня для управления регистром
@@ -64,7 +64,7 @@ TGameField::TGameField(char* AWord, uint8_t ALatchPin, uint8_t AClockPin, uint8_
 /**
  * Сброс значений и состояний
  */
-void TGameField::reset() {
+void TDreamField::reset() {
   //тушим все
   this->_countOpenLetter = 0;
   this->_loadMask();  
@@ -75,14 +75,14 @@ void TGameField::reset() {
 /**
  * Функция чтения маски матрицы
  */
-void TGameField::_loadMask() {
+void TDreamField::_loadMask() {
   uint8_t _num;
   //стираем существующую маску
   this->_clearMask();
   //считаем игровые поля и готовим маску
   for (int i = 0; i < SIZE_MATRIX * SIZE_ELEMENT; i++) {
     _num = i/SIZE_ELEMENT; 
-    if (i < TGameField::getWordLength()) {
+    if (i < TDreamField::getWordLength()) {
       bitWrite(this->MatrixMask[_num], i - _num * SIZE_ELEMENT, 0);
     } else {
       bitWrite(this->MatrixMask[_num], i - _num * SIZE_ELEMENT, 1);
@@ -94,7 +94,7 @@ void TGameField::_loadMask() {
  * Заполнения матрицы одинаковыми числами
  * @param AValue byte
  */
-void TGameField::_clearMask() {
+void TDreamField::_clearMask() {
   for (int i = 0; i < SIZE_MATRIX; i++) {
     this->MatrixMask[i] = 0x00;
   }
@@ -105,7 +105,7 @@ void TGameField::_clearMask() {
  * @param APin номер пина с 0..15
  * @param AState состоянеи LOW - выкл, HIGH - вкл
  */
-void TGameField::_setStatePin(byte APin, int AState) {
+void TDreamField::_setStatePin(byte APin, int AState) {
   //считаем номер строки, в которой надо поменять бит
   uint8_t _num = APin/SIZE_ELEMENT;
   // устанавливаем значение в соответствующий бит (whichPin - _num * SIZE_ELEMENT --> 15 - 1*8 = 15 - 8 = 7) 
@@ -113,14 +113,14 @@ void TGameField::_setStatePin(byte APin, int AState) {
   //применяем маску состояний
   this->MatrixState[_num] &= ~this->MatrixMask[_num]; 
   //записываем в регистры
-  TGameField::writeState();
+  TDreamField::writeState();
 }
 
 /**
  * Функция получения состояния пина
  * 1 - включен или замаскирован, 0 - погашен
  */
-bool TGameField::_getPinState(byte APin) {
+bool TDreamField::_getPinState(byte APin) {
   //номер байта маски
   uint8_t _num = APin/SIZE_ELEMENT;
   // читаем значение соответствующего бита, если маска бита равна 0, то бит не используется вернем 1 типа он уже выбран
@@ -131,34 +131,34 @@ bool TGameField::_getPinState(byte APin) {
 /**
  * Функция отключения изменения состояний на время передачи битов
  */
-void TGameField::startWrite() {
+void TDreamField::startWrite() {
   digitalWrite(this->_latchPin, LOW);
 }
 
 /**
  * Защелкиваем регистр для применения состояний
  */
-void TGameField::stopWrite() {
+void TDreamField::stopWrite() {
   digitalWrite(this->_latchPin, HIGH);
 }
 
 /**
  * Записываем в регистр состояние матрицы
  */
-void TGameField::writeState() {
-  TGameField::startWrite();
+void TDreamField::writeState() {
+  TDreamField::startWrite();
   //загоняем байты в регистры поочередно в обратном порядке
   for (int i = SIZE_MATRIX; i >= 0; i--) {
     shiftOut(this->_dataPin, this->_clockPin, MSBFIRST, this->MatrixState[i]);
   }
-  TGameField::stopWrite();
+  TDreamField::stopWrite();
 }
 
 /**
  * Функция сброса состояний регистров
  * @param AState устанавливаемо значение LOW (погасить) !LOW зажечь
  */
-void TGameField::changeStateAll(int AState) {
+void TDreamField::changeStateAll(int AState) {
   //для установки состояний всех выходов
   int _state;
   //проверяем заданное состояние, если LOW тушим все, иначе зажигаем
@@ -171,14 +171,14 @@ void TGameField::changeStateAll(int AState) {
     this->MatrixState[i] = _state & ~this->MatrixMask[i];  
   }
   //загоняем в регистры
-  TGameField::writeState();
+  TDreamField::writeState();
 }
 
 /**
  * Функция возвращает загаданное слово
  * @return 
  */
-char* TGameField::getWord() {
+char* TDreamField::getWord() {
   return this->_word;
 }
 
@@ -186,7 +186,7 @@ char* TGameField::getWord() {
  * Функция возвращает длину загаданного слова
  * @return 
  */
-uint8_t TGameField::getWordLength() {
+uint8_t TDreamField::getWordLength() {
   return strlen(this->_word);
 }
 
@@ -194,7 +194,7 @@ uint8_t TGameField::getWordLength() {
  * Функция возвращает число открытых букв в слове
  * @return 
  */
-uint8_t TGameField::getCountOpenLetter() {
+uint8_t TDreamField::getCountOpenLetter() {
   return this->_countOpenLetter;
 }
 
@@ -203,7 +203,7 @@ uint8_t TGameField::getCountOpenLetter() {
  * @param AValue
  * @return 
  */
-bool TGameField::checkLetter(char AValue) {
+bool TDreamField::checkLetter(char AValue) {
   bool result = false;
   //проверяем все буквы
   for (int i = 0; i < this->getWordLength(); i++) {
@@ -220,20 +220,20 @@ bool TGameField::checkLetter(char AValue) {
  * Функция моргания 
  * @param ACount число раз 
  */
-void TGameField::blinking(uint8_t ACount) {
+void TDreamField::blinking(uint8_t ACount) {
   //моргаем
   for (int8_t i = 0; i < ACount * 2; i++) {
     if (i & 1) {
       //нечетное тушим
-      TGameField::startWrite();
+      TDreamField::startWrite();
       for (int i = SIZE_MATRIX; i >= 0; i--) {
         shiftOut(this->_dataPin, this->_clockPin, MSBFIRST, 0x00);
       }
-      TGameField::stopWrite();
+      TDreamField::stopWrite();
     } else {
       //четное зажигаем ( 0 - четное)
       //причем только те, которые во включенном состоянии
-      TGameField::writeState();
+      TDreamField::writeState();
     }
     delay(100);
   }  

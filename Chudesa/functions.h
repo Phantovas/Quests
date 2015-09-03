@@ -9,21 +9,6 @@
 #define CHDS_FUNCTIONS_H
 
 /**
- * Начало игры
- */
-void startGame() {
-#ifdef DEBUG
-  Serial.print("start game ");
-#endif
-  prevKey = 0; //предыдущая нажатая клавиша
-  guessed_letters = 0; //число угаданных букв
-  GameField.reset(); //сбрасываем состояния поля
-  mp3_stop(); //останавливаем звук, если софтовый ресет, то он не останавливается сам
-  count_try = 0; //число попыток 0
-  digitalWrite(DOOR_PIN, LOW); //закрываем дверь
-}
-
-/**
  * Функция воспроизведения трека
  * @param Track
  * @param Sync
@@ -42,6 +27,24 @@ void playSound(uint8_t ATrack, bool AWait) {
   Serial.println(" stop playing");
 #endif
   }  
+}
+
+
+/**
+ * Начало игры
+ */
+void startGame() {
+#ifdef DEBUG
+  Serial.print("start game ");
+#endif
+  prevKey = 0; //предыдущая нажатая клавиша
+  guessed_letters = 0; //число угаданных букв
+  GameField.reset(); //сбрасываем состояния поля
+  mp3_stop(); //останавливаем звук, если софтовый ресет, то он не останавливается сам
+  count_try = 0; //число попыток 0
+  digitalWrite(DOOR_PIN, LOW); //закрываем дверь
+  //говорим приглашение к новой игре
+  playSound(MP3_INTRO, false);
 }
 
 /**
