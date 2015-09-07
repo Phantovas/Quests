@@ -8,6 +8,9 @@
 #ifndef CHDS_FUNCTIONS_H
 #define CHDS_FUNCTIONS_H
 
+#include "cdreamfield.h"
+
+
 /**
  * Функция воспроизведения трека
  * @param Track

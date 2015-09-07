@@ -148,7 +148,7 @@ void TDreamField::stopWrite() {
 void TDreamField::writeState() {
   TDreamField::startWrite();
   //загоняем байты в регистры поочередно в обратном порядке
-  for (int i = SIZE_MATRIX; i >= 0; i--) {
+  for (int i = SIZE_MATRIX - 1; i >= 0; i--) {
     shiftOut(this->_dataPin, this->_clockPin, MSBFIRST, this->MatrixState[i]);
   }
   TDreamField::stopWrite();
@@ -167,7 +167,7 @@ void TDreamField::changeStateAll(int AState) {
   else
     _state = 0xFF;
   //устанавливаем новое значение массива состояний с маской
-  for (int i = SIZE_MATRIX; i >= 0; i--) {
+  for (int i = SIZE_MATRIX - 1; i >= 0; i--) {
     this->MatrixState[i] = _state & ~this->MatrixMask[i];  
   }
   //загоняем в регистры
@@ -226,7 +226,7 @@ void TDreamField::blinking(uint8_t ACount) {
     if (i & 1) {
       //нечетное тушим
       TDreamField::startWrite();
-      for (int i = SIZE_MATRIX; i >= 0; i--) {
+      for (int i = SIZE_MATRIX - 1; i >= 0; i--) {
         shiftOut(this->_dataPin, this->_clockPin, MSBFIRST, 0x00);
       }
       TDreamField::stopWrite();

@@ -101,10 +101,11 @@ void loop() {
 #endif
         //говорим считанное число попыток
         playSound(count_try, true);
-        //если попытки есть, то и предланаем назвать букву
+        //если попытки есть, то и предлагаем назвать букву
         if (count_try > 0) {
           playSound(MP3_CALL_LETTER, true);
         }
+        clearPSBuffer();
       }
     }
   } else {
