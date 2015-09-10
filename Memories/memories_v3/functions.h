@@ -73,6 +73,7 @@ void TApplication::programming() {
       //зажигаем все запрограммированные ячейки на 2 секунды
       GameField.changeStateAll(HIGH);
       delay(TIME_LIGHT_SUCCESS_PROG);
+      GameField.changeStateAll(LOW);
       //переходим в режим ожидания
       state = WAITING;
     } else {
