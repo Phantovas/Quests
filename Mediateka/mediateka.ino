@@ -31,6 +31,7 @@ void setup() {
 #ifdef DEBUG
   Serial.begin(9600);
 #endif
+  state = ST_START;
 }
 
 /**
