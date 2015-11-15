@@ -22,6 +22,7 @@
  * Модули
  */
 #include "vars.h"
+#include "functions.h"
 
 /**
  * Функция установки значений
@@ -68,6 +69,7 @@ void loop() {
 #ifdef DEBUG
 //  Serial.print("state ");
 //  Serial.println(state);
+Serial.println(analogRead(PHOTOCELL_PIN));  
 #endif
   switch (state) {
     case ST_WAIT: 
@@ -75,7 +77,7 @@ void loop() {
       //включение света
       if (digitalRead(INDOOR_PIN) == HIGH) {
         //включаем освещение 
-        digitalWrite(LIGHTING_PIN, HIGH); 
+        lighting(HIGH); 
         changeState(ST_LIGHTING);
       }
       break;
@@ -94,28 +96,33 @@ void loop() {
       }
       break; 
     case ST_PHONE:
-      //если телефон не в состоянии ЗАНЯТО, то проверяем состояние трубки
+      /*************************************************************************
+       * Внимание!!! Если начато воспроизведение текста в трубку, то положив ее 
+       * он не остановится, а воспроизведется до конца.
+       */
+      //если телефон  в состоянии  НЕ ЗАНЯТО, то проверяем состояние трубки
       //иначе ничего не делаем, у нас и так по-умолчанию проверка стоит на 
       //снятую трубку
       if (phoneState != PN_BUSY) {
         //если в режиме звонка
         if (phoneState == PN_RING) {
+          //выбираем мелодию звонка
           phoneMelody = MP3_RING; 
+          //проверяем кнопку
           if (phoneBtn.update()) {
             //если подняли трубку
             if (phoneBtn.read() == LOW) {
+              stop();
               phoneMelody = MP3_TEXT; 
               phoneState = PN_PLAY;
-              mp3_stop();
             }  
           }
-          play(phoneMelody);  
+        //воспроизводим
+        play(phoneMelody);  
         } else {
-          Serial.print("digitalRead(BUSY) ");
-          Serial.println(digitalRead(BUSY));
           if (digitalRead(BUSY)) {
-            mp3_stop();
-            changeState(ST_PHOTOCELL);
+            stop();
+            changeState(ST_LIGHT_BLINK);
           }
         }
       } else {
@@ -125,11 +132,29 @@ void loop() {
         phoneBusy(); 
       }
       break;
+    case ST_LIGHT_BLINK:
+      //моргаем освещением
+      blinking(DELAY_BLINK);
+      if (millis() - start_time > timing[state]*1000) {
+        //включаем свет, а то мало-ли как времена у нас установлены
+        lighting(HIGH);
+        changeState(ST_PHOTOCELL);
+      }
+      break;
     case ST_PHOTOCELL: 
+      //если посветили на фотоэлемент
+      if (analogRead(PHOTOCELL_PIN) > SENSITIVITY) {
+        changeState(ST_GAME_OVER);
+      } else {
+        if (millis() - start_time > timing[state]*1000) {
+          blinking(DELAY_BLINK);
+        }
+      }
       break;
     case ST_GAME_OVER: 
-      mp3_stop(); //вдруг жестко перенрузили на произрывании музыки
-      state = ST_WAIT;
+      digitalWrite(BOX_PIN, HIGH);
+      digitalWrite(OUTDOOR_PIN, HIGH);
+      lighting(LOW);
   }
   //**************************************************************************
   //ДЛЯ СИЛЬНО ДОТОШНЫХ, ЕСЛИ СХВАТЯТ ТЕЛЕФОН В ЛЮБОЙ МОМЕНТ 
@@ -138,44 +163,4 @@ void loop() {
   if (state != ST_PHONE) {
     phoneBusy();
   } 
-}
-
-/**
- * Функция изменения состояния с фиксирование времени
- * @param _state
- */
-void changeState(TState _state) {
-#ifdef DEBUG
-      Serial.print("change state");
-      Serial.println(_state);
-#endif
-  start_time = millis(); //время включения
-  state = _state; //меняем состояние  
-}
-
-/**
- * Функция воспроизведения звука
- * @param _melody номер мелодии
- */
-void play(unsigned int _melody) {
-  delay(DELAY_MP3_PLAY);
-  if (digitalRead(BUSY)) {
-    mp3_play(_melody);
-  }  
-}
-
-/**
- * Функция проверки состояния телефона
- */
-void phoneBusy() {
-    phoneBtn.update();
-    //состояние телефона
-    if (phoneBtn.read() == HIGH) {
-      phoneState = PN_RING;
-      mp3_stop();
-    } else {
-      phoneState = PN_BUSY;
-      //играем в телефон занято
-      play(MP3_BUSY);
-    }     
 }
