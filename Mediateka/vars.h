@@ -1,7 +1,7 @@
 /**
   vars.h - header unit for quest Mediateka
  * @Author Vasiliy A. Ponomarjov November 13, 2015
- * @modified Vasiliy A. Ponomarjov November 13, 2015
+ * @modified Vasiliy A. Ponomarjov November 15, 2015
  * @email vas@vingrad.ru
 */
 
@@ -42,7 +42,7 @@ typedef enum {ST_WAIT, ST_LIGHTING, ST_TV_ON, ST_PHONE, ST_LIGHT_BLINK, ST_PHOTO
 TState state;
 
 //времена работы состояний {0, 120, 105, 0, 20, 0, 0} 0 - не используется
-unsigned long timing[7] = {0, 5, 3, 0, 5, 5, 0};
+unsigned long timing[7] = {0, 120, 105, 0, 20, 10, 0};
 
 //время запуска события
 unsigned long start_time = 0;
@@ -51,6 +51,8 @@ unsigned long start_time = 0;
 bool lightState = false;
 //время включения/отключения освещения
 unsigned long lightOnOffTime = 0;
+bool _blinking = false;
+unsigned long _blink_period;
 
 //антидребезг кнопок
 Bounce phoneBtn; //кнопка поднятия телефонной трубки

@@ -1,11 +1,11 @@
 /**
    Chudesa.ino - main program file for the game Mediateka
  * @Author Vasiliy A. Ponomarjov November 13, 2015
- * @modified Vasiliy A. Ponomarjov November 13, 2015
+ * @modified Vasiliy A. Ponomarjov November 15, 2015
  * @email vas@vingrad.ru
 */
 
-#define DEBUG
+//#define DEBUG
 
 /**
 * Системные модули
@@ -67,9 +67,8 @@ void setup() {
  */
 void loop() {
 #ifdef DEBUG
-//  Serial.print("state ");
-//  Serial.println(state);
-Serial.println(analogRead(PHOTOCELL_PIN));  
+  Serial.print("state ");
+  Serial.println(state);
 #endif
   switch (state) {
     case ST_WAIT: 
@@ -143,13 +142,32 @@ Serial.println(analogRead(PHOTOCELL_PIN));
       break;
     case ST_PHOTOCELL: 
       //если посветили на фотоэлемент
+      Serial.println(analogRead(PHOTOCELL_PIN));
       if (analogRead(PHOTOCELL_PIN) > SENSITIVITY) {
         changeState(ST_GAME_OVER);
       } else {
-        if (millis() - start_time > timing[state]*1000) {
-          blinking(DELAY_BLINK);
-        }
-      }
+        //если не моргаем
+        if (!_blinking) {
+          //если вышло время ожидания для моргания
+          if (millis() - start_time > timing[state]*1000) {
+            _blinking = true;
+            //замеряем новое время
+            start_time = millis();
+            _blink_period = random(2, 10);
+          }
+        } else {
+          //флаг установлен, если время моргания не вышло, то моргаем
+          if (millis() - start_time < _blink_period  * 1000) {
+            //если установлен флаг, то моргаем
+            blinking(DELAY_BLINK);
+          } else {
+            _blinking = false;
+            //замеряем новое время
+            start_time = millis();
+            lighting(HIGH);
+          } 
+        } 
+      }  
       break;
     case ST_GAME_OVER: 
       digitalWrite(BOX_PIN, HIGH);
