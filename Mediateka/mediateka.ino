@@ -1,15 +1,12 @@
 /**
    Chudesa.ino - main program file for the game Mediateka
  * @Author Vasiliy A. Ponomarjov November 13, 2015
- * @modified Vasiliy A. Ponomarjov November 15, 2015
+ * @modified Vasiliy A. Ponomarjov November 16, 2015
  * @email vas@vingrad.ru
 */
 
+//режим отладки
 //#define DEBUG
-
-/**
-* Системные модули
-*/
 
 /**
  * Библиотеки
@@ -42,22 +39,29 @@ void setup() {
   digitalWrite(PHONE_PIN, HIGH);
   //активируем антидребезг
   phoneBtn.attach(PHONE_PIN);
-  phoneBtn.interval(TIME_BOUNCE_PROGRAM);
+  phoneBtn.interval(TIME_BOUNCE_BTN);
+  //если цифоровой вход
+#if DIGITAL_PHOTOCELL
+  pinMode(PHOTOCELL_PIN, INPUT);
+  digitalWrite(PHOTOCELL_PIN, HIGH);
+#endif
   
   //инициализация выходных пинов
   pinMode(LIGHTING_PIN, OUTPUT);
   pinMode(TV_PIN, OUTPUT);
+  pinMode(MP_PIN, OUTPUT);
   pinMode(BOX_PIN, OUTPUT);
   pinMode(OUTDOOR_PIN, OUTPUT);
   //состояния выходных пинов
   digitalWrite(LIGHTING_PIN, LOW);
   digitalWrite(TV_PIN, LOW);
+  digitalWrite(MP_PIN, LOW);
   digitalWrite(BOX_PIN, LOW);
   digitalWrite(OUTDOOR_PIN, LOW);
   //плеер
 	mSerial.begin(9600);
 	mp3_set_serial(mSerial); 
-  mp3_stop(); //вдруг жестко перенрузили на произрывании музыки
+  mp3_stop(); //вдруг жестко перенрузили на проигрывании музыки
   //запускаем режим ожидания
   state = ST_WAIT;
 }  
@@ -74,7 +78,7 @@ void loop() {
     case ST_WAIT: 
       //если в режиме ожидания открыли дверь, то переходим в состояние 
       //включение света
-      if (digitalRead(INDOOR_PIN) == HIGH) {
+      if (digitalRead(INDOOR_PIN) == LOW) {
         //включаем освещение 
         lighting(HIGH); 
         changeState(ST_LIGHTING);
@@ -82,17 +86,24 @@ void loop() {
       break;
     case ST_LIGHTING: 
       //освещение горит в течение заданного времени (массив timing в vars.h)
-      if (millis() - start_time > timing[state]*1000) {
-        //по прошествию заданного времени включается ТВ
-        digitalWrite(TV_PIN, HIGH);
+      if (millis() - start_time > timing[state] * 1000) {
+        changeState(ST_MP_ON);
+        //включаем медиаплеер
+        digitalWrite(MP_PIN, HIGH);
+      }
+      break;
+    case ST_MP_ON: 
+      if (millis() - start_time > timing[state] * 1000) {
         changeState(ST_TV_ON);
+        //включаем ТВ
+        digitalWrite(TV_PIN, HIGH);
       }
       break;
     case ST_TV_ON: 
       //показываем видеофрагмент в течение заданного времени (массив timing в vars.h)
-      if (millis() - start_time > timing[state]*1000) {
+      if (millis() - start_time > timing[state] * 1000) {
         changeState(ST_PHONE);
-      }
+      } 
       break; 
     case ST_PHONE:
       /*************************************************************************
@@ -142,26 +153,29 @@ void loop() {
       break;
     case ST_PHOTOCELL: 
       //если посветили на фотоэлемент
-      Serial.println(analogRead(PHOTOCELL_PIN));
+#if DIGITAL_PHOTOCELL
+      if (digitalRead(PHOTOCELL_PIN) == LOW) {
+#else
       if (analogRead(PHOTOCELL_PIN) > SENSITIVITY) {
+#endif      
         changeState(ST_GAME_OVER);
       } else {
         //если не моргаем
-        if (!_blinking) {
+        if (!isBlinking) {
           //если вышло время ожидания для моргания
           if (millis() - start_time > timing[state]*1000) {
-            _blinking = true;
+            isBlinking = true;
             //замеряем новое время
             start_time = millis();
-            _blink_period = random(2, 10);
+            blink_period = random(2, 6);
           }
         } else {
           //флаг установлен, если время моргания не вышло, то моргаем
-          if (millis() - start_time < _blink_period  * 1000) {
+          if (millis() - start_time < blink_period  * 1000) {
             //если установлен флаг, то моргаем
             blinking(DELAY_BLINK);
           } else {
-            _blinking = false;
+            isBlinking = false;
             //замеряем новое время
             start_time = millis();
             lighting(HIGH);
