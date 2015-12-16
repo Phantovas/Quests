@@ -47,16 +47,18 @@ void setup() {
   pinMode(MP_PIN, OUTPUT);
   pinMode(TV_PIN, OUTPUT);
   pinMode(TV_BTN_PIN, OUTPUT);
+  pinMode(TV_AV_PIN, OUTPUT);
   //состояния выходных пинов
   digitalWrite(LIGHTING_PIN, LOW);
   digitalWrite(CANDLE_PIN, LOW);
   digitalWrite(MP_PIN, LOW);
   digitalWrite(TV_PIN, LOW);
-  digitalWrite(TV_BTN_PIN, HIGH);
+  digitalWrite(TV_BTN_PIN, LOW); 
+  digitalWrite(TV_AV_PIN, LOW); 
   //плеер
 	mSerial.begin(9600);
 	mp3_set_serial(mSerial); 
-  mp3_stop(); //вдруг жестко перенрузили на проигрывании музыки
+  mp3_stop(); //вдруг жестко перегрузили на проигрывании музыки
   //запускаем режим ожидания
   changeState(ST_START);
 }  
@@ -91,11 +93,20 @@ void loop() {
         }
         break;
       case ST_TV_ON: 
-        //показываем видеофрагмент в течение заданного времени (массив timing в vars.h)
+        //ожидаем загрузки телека и нажимаем кнопку выхода из StandBy
         if (millis() - start_time > timing[state] * 1000) {
-          digitalWrite(TV_BTN_PIN, LOW);
-          delay(PRESS_TV_BTN_TIME);
           digitalWrite(TV_BTN_PIN, HIGH);
+          delay(PRESS_TV_BTN_TIME);
+          digitalWrite(TV_BTN_PIN, LOW);
+          changeState(ST_TV_AV);
+        } 
+        break; 
+      case ST_TV_AV: 
+        //ожидаем разогрева экрана и нажимаем переход в AV
+        if (millis() - start_time > timing[state] * 1000) {
+          digitalWrite(TV_AV_PIN, HIGH);
+          delay(PRESS_TV_BTN_TIME);
+          digitalWrite(TV_AV_PIN, LOW);
           changeState(ST_PLAY_VIDEO);
         } 
         break; 
