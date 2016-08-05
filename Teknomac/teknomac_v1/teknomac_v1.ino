@@ -119,9 +119,15 @@ void setup() {
   //создаем меню
   //menu.addMenuItem(ID, ParentID, Title, IsParam, Name function for edit param or NULL);
   menu.addMenuItem(1, 0, "Setup", false, NULL);
+  menu.addMenuItem(2, 0, "Statistics", false, NULL);
+  menu.addMenuItem(3, 0, "Tools", false, NULL);
   //setup param
-  menu.addMenuItem(2, 1, "Times", false, NULL);
-  menu.addMenuItem(3, 1, "Clear EEPROM", true, lmClearEeprom);
+  menu.addMenuItem(4, 1, "Length", true, NULL);
+  menu.addMenuItem(5, 1, "Time filing", true, NULL);
+  menu.addMenuItem(6, 2, "Amount", true, NULL);
+  menu.addMenuItem(7, 2, "Total", true, NULL);
+  menu.addMenuItem(8, 2, "Errors", true, NULL);
+  menu.addMenuItem(9, 3, "Clear EEPROM", true, lmClearEeprom);
   //строим меню в памяти
   menu.start();
 
