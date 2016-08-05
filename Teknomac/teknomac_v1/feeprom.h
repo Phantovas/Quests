@@ -70,10 +70,6 @@ void clearEEPROM() {
  * Читаем сохраненные значения
  */
 void readEEPROM() {
-  //массив матрицы
-  for (uint8_t i=0; i<64; i++) {
-    GameField.Matrix[i] = EEPROMRead(EA_MATRIX + i);
-  }
 }
 
 /**
@@ -82,10 +78,6 @@ void readEEPROM() {
 void saveEEPROM() {
   //флаг заливки епрома
   EEPROMWrite(EA_CLEAR, 1);  
-  //массив матрицы
-  for (uint8_t i=0; i<64; i++) {
-    EEPROMWrite(EA_MATRIX + i, GameField.Matrix[i]);
-  }
 }
 
 #endif
