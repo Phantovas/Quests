@@ -9,10 +9,6 @@
 #ifndef VARS_H
 #define VARS_H
 
-#define ST_WORK "Working "
-#define ST_STOP "Stopped "
-#define ST_DISABLE "Disable "
-
 //константы
 #define BTN_RIGHT  0
 #define BTN_UP     1
@@ -24,10 +20,14 @@
 //screens
 #define SCR_COUNT 4
 
+//constants
+#define TIME_BOUNCE_BTN 100         //время антидребезга кнопок в мс
+
 //pinout
+#define STARTBTN_PIN    11          //пин главной кнопки Старт
 
 //counter
-unsigned long previousMillis;        //время предыдущего опроса
+unsigned long previousMillis;       //время предыдущего опроса
 
 //general vars
 bool _mainScreen = true;      //показывать главный экран
@@ -35,16 +35,18 @@ int8_t _numScreen = 0;        //номер текущего экрана
 bool _repaintScreen = true;   //флаг перерисовки главного экрана, сразу истина, чтобы нарисоваь первый экран
 
 //setup vars
-//состояния -  работаем, ожжидаем или программируемся
+//состояния -  работаем, ожидаем или программируемся
 enum { 
-  TESTING,
-  WORKING, 
-  STOPED 
+  TESTING, //в режиме теста
+  WAITING, //работаем, но в режиме ожидания багета
+  WORKING, //работаем
+  STOPED   //остановлен принудительно (возможно что переход в режим работы только через тест) 
 } state;  
 
-//char vars
-char *strClear = "Clear EEPROM?";
-char *strState[6] = {"OFF ", "ON ", "CLOSE ", "OPEN ", "NO ", "YES "};
+//антидребезг кнопок
+Bounce startBtn; //кнопка запуска рабочего цикла
+
+
 
 //define some values used by the LCD panel
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
