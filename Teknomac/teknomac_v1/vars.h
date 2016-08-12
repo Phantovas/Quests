@@ -23,11 +23,22 @@
 //constants
 #define TIME_BOUNCE_BTN 100         //время антидребезга кнопок в мс
 
-//pinout
-#define STARTBTN_PIN    11          //пин главной кнопки Старт
+//pinouts input
+#define STOPBTN_PIN         0           //пин конпки Стоп (незамедлительная остановка)
+#define STARTBTN_PIN        1           //пин главной кнопки Старт
+#define FEED_PIN            2           //датчик подачи
+#define EMISSION_PIN        3           //датчик выброса
+#define SHAFT_DOWN_PIN      15          //датчик вала подачи, нижнее положение
+#define SHAFT_UP_PIN        16          //датчик вала подачи, верхнее положение
+#define IRON_DOWN_PIN       17          //датчик утюга, нижнее положение
+#define IRON_UP_PIN         18          //датчик утюга, верхнее положение
+//pinouts output    
+#define MOTOR_PIN           10          //вывод двигателей вращения
+#define SHAFTPNEVMO_PIN     11          //вывод пневмоцилиндров вала подачи
+#define EMISSIONPNEVMO_PIN  12          //вывод пневмоцилиндров выброса
 
-//counter
-unsigned long previousMillis;       //время предыдущего опроса
+//timers
+unsigned long previousMillis;           //время предыдущего опроса
 
 //general vars
 bool _mainScreen = true;      //показывать главный экран
@@ -44,9 +55,8 @@ enum {
 } state;  
 
 //антидребезг кнопок
-Bounce startBtn; //кнопка запуска рабочего цикла
-
-
+Bounce startBtn;          //кнопка запуска рабочего цикла
+Bounce stopBtn;           //кнопка остановки рабочего цикла
 
 //define some values used by the LCD panel
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);

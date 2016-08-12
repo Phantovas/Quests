@@ -46,13 +46,42 @@ void setup() {
   //START STATE
   state = TESTING;
   
+  //<editor-fold defaultstate="collapsed" desc="Input pins initialize">
   //инициализация входных пинов
+  pinMode(STOPBTN_PIN, INPUT);
   pinMode(STARTBTN_PIN, INPUT);
+  pinMode(FEED_PIN, INPUT);
+  pinMode(EMISSION_PIN, INPUT);
+  pinMode(SHAFT_DOWN_PIN, INPUT);
+  pinMode(SHAFT_UP_PIN, INPUT);
+  pinMode(IRON_DOWN_PIN, INPUT);
+  pinMode(IRON_UP_PIN, INPUT);
+  //устанавливаем высокие уровни
+  digitalWrite(STOPBTN_PIN, HIGH);
   digitalWrite(STARTBTN_PIN, HIGH);
-  
+  digitalWrite(FEED_PIN, HIGH);
+  digitalWrite(EMISSION_PIN, HIGH);
+  digitalWrite(SHAFT_DOWN_PIN, HIGH);
+  digitalWrite(SHAFT_UP_PIN, HIGH);
+  digitalWrite(IRON_DOWN_PIN, HIGH);
+  digitalWrite(IRON_UP_PIN, HIGH);  
   //активируем антидребезг
   startBtn.attach(STARTBTN_PIN);
   startBtn.interval(TIME_BOUNCE_BTN);
+  stopBtn.attach(STOPBTN_PIN);
+  stopBtn.interval(TIME_BOUNCE_BTN);
+  //</editor-fold>
+  
+    //<editor-fold defaultstate="collapsed" desc="Output pins initialize">
+  //инициализация входных пинов
+  pinMode(STOPBTN_PIN, OUTPUT);
+  pinMode(STARTBTN_PIN, OUTPUT);
+  pinMode(FEED_PIN, OUTPUT);
+  //устанавливаем низкие уровни
+  digitalWrite(MOTOR_PIN, LOW);
+  digitalWrite(SHAFTPNEVMO_PIN, LOW);
+  digitalWrite(EMISSIONPNEVMO_PIN, LOW);
+  //</editor-fold>
   
   //читаем значения из EEPROM
   uint8_t _clearEeprom = EEPROMRead(EA_CLEAR);
@@ -93,6 +122,7 @@ void loop() {
   switch (state) {
     //в режиме теста
     case TESTING: {
+      
       break;
     }
     //работаем, но ждем пакет
