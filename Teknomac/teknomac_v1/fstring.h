@@ -10,12 +10,14 @@ char *strStop = "Stop?";
 char *strError = "Error ";
 char *strOk = "Ok";
 
-//TEST STRING
+//TEST STRINGS
 #define C_TEST_START        "START TEST"
 #define C_TEST_PERFOMED     "TEST PERFOMED"
 #define C_TEST_SUCCESS      "TEST SUCCESS"
 #define C_TEST_FAILURE      "TEST FAILS"
 
+//STOP STRINGS
+#define C_STOP_FORCED      "FORCED STOP"
 
 
 #endif

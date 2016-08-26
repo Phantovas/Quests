@@ -83,14 +83,29 @@ void showMainScreen(uint8_t aScreen) {
       }
       default: {
         if (state = WORKING) {
-          lcd.print(ST_WORK);
+          //lcd.print(ST_WORK);
         } else {
-          lcd.print(ST_STOP);
+          //lcd.print(ST_STOP);
         }
         break;
       };
     }
     //убираем флаг перерисовки экрана
+    _repaintScreen = false;
+  }
+}
+
+/**
+ * Функция прорисовки экрана остановки
+ * @param aScreen
+ */
+void showStopScreen() {
+  if (_repaintScreen) {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(C_STOP_FORCED);
+    lcd.setCursor(0, 1);
+    lcd.print(strPressStart);      
     _repaintScreen = false;
   }
 }

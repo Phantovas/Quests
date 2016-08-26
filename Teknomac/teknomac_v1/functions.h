@@ -37,4 +37,73 @@ int readBtn() {
 }
 
 
+/**
+ * Функция опредления нажатия кнопки STOP
+ * если состояние обновилось  и замкнули на массу
+ * то вернем истину, то бишь сработала кнопка STOP
+ * @return true/false 
+ */
+bool clickStop() {
+  if (stopBtn.update()) {
+    return (stopBtn.read() == LOW);
+  } else {
+    return false;
+  }
+}
+
+/**
+ * Функция определения нажатия кнопки START 
+ * @return true/false
+ */
+bool clickStart() {
+  if (startBtn.update()) {
+    return (startBtn.read() == LOW);
+  } else {
+    return false;
+  }
+}
+
+/**
+ * Функция остановки всей механики 
+ * без всяких возвратов в исходное состояние 
+ * возможно что-то произошло и попало в механизм
+ */
+void stop() {
+  state = STOPED;
+  _working = false;
+  _repaintScreen = true;
+}
+
+//<editor-fold defaultstate="collapsed" desc="TEST functions">
+/**
+ * Функция перехода в состояние тестирования
+ */
+void toTest() {
+  state = TESTING;
+  _numScreen = 0;
+  _repaintScreen = true;
+  stateStartBtn = false;
+}
+
+/**
+ * Функция запуска проведения тестирования механизмов и датчиков
+ */
+void startTest() {
+  _working = true;
+  _numScreen = 1;
+  _repaintScreen = true;
+  showTestingScreen(_numScreen);
+}
+
+/**
+ * Функция проведеняи тестирования механизмов и датчиков
+ * в результате работы будут изменяться экраны и вывод соответсвующих надписей
+ * @param aStep шаг тестирования, по-умолчанию 0
+ */
+void doTest(uint8_t aStep = 0) {
+  
+}
+
+//</editor-fold>
+
 #endif FFUNCTIONS_H

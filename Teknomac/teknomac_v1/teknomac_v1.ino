@@ -72,8 +72,8 @@ void setup() {
   stopBtn.interval(TIME_BOUNCE_BTN);
   //</editor-fold>
   
-    //<editor-fold defaultstate="collapsed" desc="Output pins initialize">
-  //инициализация входных пинов
+  //<editor-fold defaultstate="collapsed" desc="Output pins initialize">
+  //инициализация выходных пинов
   pinMode(STOPBTN_PIN, OUTPUT);
   pinMode(STARTBTN_PIN, OUTPUT);
   pinMode(FEED_PIN, OUTPUT);
@@ -91,7 +91,7 @@ void setup() {
     readEEPROM();
   }
 
-  //создаем меню
+  //<editor-fold defaultstate="collapsed" desc="Create menu items">
   //menu.addMenuItem(ID, ParentID, Title, IsParam, Name function for edit param or NULL);
   menu.addMenuItem(1, 0, "Setup", false, NULL);
   menu.addMenuItem(2, 0, "Statistics", false, NULL);
@@ -105,28 +105,43 @@ void setup() {
   menu.addMenuItem(9, 3, "Clear EEPROM", true, lmClearEeprom);
   //строим меню в памяти
   menu.start();
+  //</editor-fold>
 
-  //рисуем первоначальный экран
-  showTestingScreen(_numScreen);
-
+  //переходим в состояние тестирования механизмов
+  toTest();
+  
   //инициализируем переменную послдней проверки
   previousMillis = millis();
 }
 
 
 void loop() {
-  // read the buttons
-  clickKey = readBtn();
+
+  //если нажали стоп, то срочно все останавливаем, какая-то приключилась беда
+  if (clickStop()) {
+    stop();
+  }
   
   //work
   switch (state) {
     //в режиме теста
     case TESTING: {
-      
+      showTestingScreen(_numScreen);
+      //если еще не тестируемся, то ожидаем 
+      if (!working) {
+        if (clickStart()) {
+          startTest();
+        }
+      } else {
+        doTest();
+      }
       break;
     }
     //работаем, но ждем пакет
     case WAITING: {
+      //читаем состояние кнопок меню
+      clickKey = readBtn();
+      
       //если что-то нажато, а не btnNone
       if (clickKey != BTN_NONE) {
         if (_mainScreen) {
@@ -186,8 +201,12 @@ void loop() {
     }
     //остановлен
     case STOPED: {
+      showStopScreen();
+      //если нажали СТАРТ, то переходим в режим теста
+      if (clickStart()) {
+        toTest();
+      }
       break;
     }
   }
-
 }

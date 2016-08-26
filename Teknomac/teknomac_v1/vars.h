@@ -21,7 +21,7 @@
 #define SCR_COUNT 4
 
 //constants
-#define TIME_BOUNCE_BTN 100         //время антидребезга кнопок в мс
+#define TIME_BOUNCE_BTN     100         //время антидребезга кнопок в мс
 
 //pinouts input
 #define STOPBTN_PIN         0           //пин конпки Стоп (незамедлительная остановка)
@@ -44,6 +44,7 @@ unsigned long previousMillis;           //время предыдущего оп
 bool _mainScreen = true;      //показывать главный экран
 int8_t _numScreen = 0;        //номер текущего экрана
 bool _repaintScreen = true;   //флаг перерисовки главного экрана, сразу истина, чтобы нарисоваь первый экран
+bool _working = false;        //флаг выполнения длительной операции (тестирование или работа))
 
 //setup vars
 //состояния -  работаем, ожидаем или программируемся
@@ -55,8 +56,8 @@ enum {
 } state;  
 
 //антидребезг кнопок
-Bounce startBtn;          //кнопка запуска рабочего цикла
-Bounce stopBtn;           //кнопка остановки рабочего цикла
+Bounce startBtn;              //кнопка запуска рабочего цикла
+Bounce stopBtn;               //кнопка остановки рабочего цикла
 
 //define some values used by the LCD panel
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
