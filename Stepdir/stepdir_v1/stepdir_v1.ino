@@ -15,7 +15,7 @@
 /**
  * Библиотеки
  */
-#include <Bounce2.h>
+#include <GyverStepper.h>
 
 /**
  * Модули
@@ -24,37 +24,44 @@
 #include "vars.h"
 // #include "functions.h"
 
-// переменные для подключения 4 контактов с приемника HY-DJM-5V //
-#define RADIO_PIN1 2
-#define RADIO_PIN2 3
-#define RADIO_PIN3 4
-#define RADIO_PIN4 5 
 
 void setup() {
-  pinMode(RADIO_PIN1, INPUT);
-  pinMode(RADIO_PIN2, INPUT);
-  pinMode(RADIO_PIN3, INPUT);
-  pinMode(RADIO_PIN4, INPUT);
+  Serial.begin(9600);
+  // режим поддержания скорости
+  Stm1.setRunMode(KEEP_SPEED);
+  // можно установить скорость
+  Stm1.setSpeed(60);    // в шагах/сек
+  // Stm1.setSpeedDeg(1);  // в градусах/сек
+  // режим следования к целевй позиции
+  Stm1.setRunMode(FOLLOW_POS);
+  // можно установить позицию
+   Stm1.setTarget(0);           // в шагах
+  // Stm1.setTargetDeg(-360);  // в градусах
+  // // установка макс. скорости в градусах/сек
+  // Stm1.setMaxSpeedDeg(400);
   
-  pinMode(A0, OUTPUT);
-  pinMode(A1, OUTPUT);
-
-  digitalWrite(A0, LOW);
-  digitalWrite(A1, LOW);
+  // установка макс. скорости в шагах/сек
+  Stm1.setMaxSpeed(400);
+  // установка ускорения в шагах/сек/сек
+  Stm1.setAcceleration(300);
+  // отключать мотор при достижении цели
+  Stm1.autoPower(true);
+  // включить мотор (если указан пин en)
+  Stm1.enable();
 }
 
 void loop() {
-  if (digitalRead(RADIO_PIN1) == HIGH) {
-    digitalWrite(A0, HIGH);
+  // просто крутим туды-сюды
+  if (!Stm1.tick()) {
+    static bool dir;
+    dir = !dir;
+    Stm1.setTarget(dir ? -1024 : 1024);
   }
-  if (digitalRead(RADIO_PIN2) == HIGH) {
-    digitalWrite(A0, LOW);
+  // график положения
+  static uint32_t tmr2;
+  if (millis() - tmr2 > 20) {
+    tmr2 = millis();
+    Serial.println(Stm1.getCurrent());
   }
-  if (digitalRead(RADIO_PIN3) == HIGH) {
-    digitalWrite(A1, HIGH);
-  }
-  if (digitalRead(RADIO_PIN4) == HIGH) {
-    digitalWrite(A1, LOW);
-  }
-}
 
+}

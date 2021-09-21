@@ -28,14 +28,15 @@
 //************** Переменные **************
 //1-й шаговый мотор 
 uint16_t Stm1Steps = 200;    //число шагов 1-го мотора
-uint16_t Stm1Speed = 1000;   //скорость 1-го мотора
+uint16_t Stm1Speed = 10;   //скорость 1-го мотора
+GStepper<STEPPER4WIRE> Stm1(4076, 17, 15, 16, 14);
 
 //2-й шаговый мотор 
 uint16_t Stm2Steps = 200;    //число шагов 2-го мотора
-uint16_t Stm2Speed = 1000;   //скорость 2-го мотора
+uint16_t Stm2Speed = 10;   //скорость 2-го мотора
 
 //3-й шаговый мотор 
-uint16_t Stm3Speed = 1000;   //скорость 3-го мотора
+uint16_t Stm3Speed = 10;   //скорость 3-го мотора
 
 //Коллекторный мотор
 TRelay DcmIn1(DCM_IN1_PIN, nullptr);    //1-ое реле управления
@@ -44,3 +45,4 @@ TRelay DcmIn2(DCM_IN2_PIN, nullptr);    //2-ое реле управления
 bool DcmCurrentDirection = true;         //текущее направление вращения (true - вперед, FALSE - реверс)
 uint16_t DcmTimeForward = 2000;          //время вращения вперед
 uint16_t DcmTimeRevers  = 2000;          //время вращения реверсом
+
