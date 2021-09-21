@@ -24,44 +24,29 @@
 #include "vars.h"
 // #include "functions.h"
 
-
 void setup() {
+#ifdef DEBUG
   Serial.begin(9600);
-  // режим поддержания скорости
-  Stm1.setRunMode(KEEP_SPEED);
-  // можно установить скорость
-  Stm1.setSpeed(60);    // в шагах/сек
-  // Stm1.setSpeedDeg(1);  // в градусах/сек
-  // режим следования к целевй позиции
+#endif  
+  //первый мотор
   Stm1.setRunMode(FOLLOW_POS);
-  // можно установить позицию
-   Stm1.setTarget(0);           // в шагах
-  // Stm1.setTargetDeg(-360);  // в градусах
-  // // установка макс. скорости в градусах/сек
-  // Stm1.setMaxSpeedDeg(400);
-  
-  // установка макс. скорости в шагах/сек
-  Stm1.setMaxSpeed(400);
-  // установка ускорения в шагах/сек/сек
+  //устанавливаем скорость
+  Stm1Speed = constrain(Stm1Speed, _MIN_SPEED_FP, MAX_STEP_SPEED);
+  Stm1.setSpeed(Stm1Speed);    
+  //установка макс. скорости 
+  Stm1.setMaxSpeed(MAX_STEP_SPEED);
+  //установка ускорения в шагах/сек/сек
   Stm1.setAcceleration(300);
-  // отключать мотор при достижении цели
+  //отключать мотор при достижении цели
   Stm1.autoPower(true);
-  // включить мотор (если указан пин en)
-  Stm1.enable();
+  // //включить мотор (если указан пин en)
+  // Stm1.enable();
 }
 
 void loop() {
-  // просто крутим туды-сюды
+  
   if (!Stm1.tick()) {
-    static bool dir;
-    dir = !dir;
-    Stm1.setTarget(dir ? -1024 : 1024);
+    Stm1Dir = !Stm1Dir;
+    Stm1.setTarget(Stm1Dir ? Stm1Steps : -Stm1Steps, RELATIVE);
   }
-  // график положения
-  static uint32_t tmr2;
-  if (millis() - tmr2 > 20) {
-    tmr2 = millis();
-    Serial.println(Stm1.getCurrent());
-  }
-
 }
