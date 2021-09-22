@@ -5,6 +5,11 @@
  * @email vas@vingrad.ru
 */
 
+#ifndef STEPDIR_VARS_H
+#define STEPDIR_VARS_H
+
+#define DRIVER_STEP_TIME 10  // меняем задержку на 10 мкс
+
 // ************** Контакты **************
 // 1-й шаговый мотор
 #define STM1_STEP 2
@@ -36,9 +41,10 @@
 // ************** Переменные **************
 // скорости и шани определяем переменными для возможности их изменения в процессе работы скетча
 // 1-й шаговый мотор 
-long Stm1Steps = 1000;    // число шагов 1-го мотора
-float Stm1Speed = 500;    // скорость 1-го мотора
-bool Stm1Dir = true;      // направление вращения (true - CW; false- CCW)
+long Stm1Steps = 1000;                  // число шагов 1-го мотора
+float Stm1Speed = 500;                  // скорость 1-го мотора
+bool Stm1Dir = true;                    // направление вращения (true - CW; false- CCW)
+GS_runMode Stm1Mode = KEEP_SPEED;       // режим работы движка
 
 GStepper<STEPPER4WIRE> Stm1(4076, 17, 15, 16, 14);
 
@@ -58,3 +64,5 @@ TRelay DcmIn2(DCM_IN2_PIN, nullptr);    // 2-ое реле управления
 bool DcmCurrentDirection = true;         // текущее направление вращения (true - вперед, FALSE - реверс)
 uint16_t DcmTimeForward = 2000;          // время вращения вперед
 uint16_t DcmTimeRevers  = 2000;          // время вращения реверсом
+
+#endif

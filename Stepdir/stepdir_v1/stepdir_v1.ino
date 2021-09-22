@@ -22,10 +22,14 @@
  */
 #include "TRelay.h"
 #include "vars.h"
-// #include "functions.h"
+#include "functions.h"
 
 void setup() {
+  
+  //тест кнопки
   pinMode(2, INPUT_PULLUP);
+  pinMode(3, INPUT_PULLUP);
+
 #ifdef DEBUG
   Serial.begin(9600);
 #endif  
@@ -33,33 +37,33 @@ void setup() {
   Stm1.setRunMode(KEEP_SPEED);
   //устанавливаем скорость
   Stm1Speed = constrain(Stm1Speed, _MIN_SPEED_FP, MAX_STEP_SPEED);
-  Stm1.setSpeed(Stm1Speed);    
-  //установка ускорения в шагах/сек/сек
-  Stm1.setAcceleration(0);
-  //отключать мотор при достижении цели
-  Stm1.autoPower(true);
-  // //включить мотор (если указан пин en)
-  // Stm1.enable();
+  Stm1.setSpeed(0);
+  //ускорение без него как-то странно себя ведет двиг
+  Stm1.setAcceleration(500);
 }
 
-bool _work;
-double _speed;
-
 void loop() {
+  uint16_t _tempKeyCode = 0;
+  
+  //тут опрос всех моторов на движение
+  Stm1.tick();
+  // Stm2.tick();
+  // Stm3.tick();
 
-  if (!Stm1.tick()) {
-    Stm1.setSpeed(Stm1Speed);
+  if (Serial.available()) {
+    char ch = Serial.read();
+    if (ch == 'q') _tempKeyCode = 2;
+    if (ch == 'w') _tempKeyCode = 3;
   }
 
-  if (digitalRead(2) == LOW) {
-    Stm1.stop();
-    Serial.println("break");
-    Stm1Speed = Stm1Speed * -1;
-    Serial.println(Stm1Speed);
-  } else {
-    Serial.print("tick = ");
-    _speed = Stm1.getSpeed();
-    Serial.println(_speed);
+  switch (_tempKeyCode) {
+    case 2:
+    case 3:
+      Stm1Working(_tempKeyCode);
+      break;
+    
+    default:
+      break;
   }
-
+  
 }
