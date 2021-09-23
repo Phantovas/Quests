@@ -13,14 +13,14 @@
 
 /**
  * Функция работы первого мотора
- * @param uint16_t код нажатия кнопки
+ * @param unsigned long код нажатия кнопки
  * @return bool состояние мотора, крутит или стоит
  * @doc Мотор может работать в двух режимах, как второй мотор, там и как 3-й.
  * Если нажата клавиша переключения режимов, то останавливаем мотор и меняем тип его работы.
  * От поддержания скорости до следования к цели.
  */
 
-bool Stm1Working(uint16_t KeyCode) {
+bool Stm1Working(unsigned long KeyCode) {
   // сохраняем состяоние в переменную, чтобы два раза не дергать функцию
   bool _state = Stm1.getState();
 
@@ -29,7 +29,6 @@ bool Stm1Working(uint16_t KeyCode) {
     // если крутимся, то надо остановиться
     if (_state) 
       Stm1.brake();
-
     // меняем режим
     if (Stm1Mode == FOLLOW_POS) {
       Stm1Mode = KEEP_SPEED;
@@ -101,12 +100,13 @@ bool Stm1Working(uint16_t KeyCode) {
  * Во время движения нажатия клавиш игнорируются до остановки (косяк конечно, если что пойдет не так то ой).
  * Если мотор стоит в крайнем из положений, то повторное нажатие запускает работу от той же точки.
  */
-bool Stm2Working(uint16_t KeyCode) {
+bool Stm2Working(unsigned long KeyCode) {
   // сохраняем состяоние в переменную, чтобы два раза не дергать функцию
   bool _state = Stm2.getState();
-    // если движемся то выходим из функции и возвращаем _state
+  
+  // если движемся то выходим из функции и возвращаем _state
   if (_state) 
-    return(_state); 
+    return _state; 
 
   // крутим моторы на заданное кол-во шагов
   switch (KeyCode) {
@@ -132,7 +132,7 @@ bool Stm2Working(uint16_t KeyCode) {
  * @return long текущая позиция
  * @doc Мотор движется, только если зажата клавиша, как только бросили, то стоп.
  */
-long Stm3Working(uint16_t KeyCode) {
+long Stm3Working(unsigned long KeyCode) {
   // если получили 0, то останавливаем мотор 
   if (KeyCode == 0) {
     Stm3.stop();
@@ -152,6 +152,65 @@ long Stm3Working(uint16_t KeyCode) {
   
   //возвращаем текущее положение мотора
   return Stm3.getTarget();
+}
+
+/**
+ * Функция остановки коллекторного мотора 
+ */
+void DcmStop() {
+  DcmIn1.stop();
+  DcmIn2.stop();
+}
+
+/**
+ * Функция работы коллекторного мотора
+ * @param uint16_t код нажатия кнопки
+ * @return bool состояние мотора, крутит или стоит
+ * @doc Мотор движется, если состояни реле не равны. Иначе стоит.
+ * По часовой IN1 = HIGH, IN2 = LOW, против часовой наоборот.
+ */
+bool DcmWorking(unsigned long KeyCode) {
+  // время запуска 
+  static unsigned long _startTime;
+  uint16_t _DcmTime;
+  
+  // если работаем, то нужно проверить состояние времени вращения
+  if (DcmIn1.getState() != DcmIn2.getState()) {
+    switch (DcmCurrentDirection) {
+      case true:
+        _DcmTime = DcmTimeForward;
+      break;
+      case false:
+        _DcmTime = DcmTimeBackward;
+      break;
+    }
+    if (millis() - _startTime > _DcmTime) {
+      DcmStop();
+      _startTime = 0;
+      return false;
+    } else {
+      return true;
+    }
+  } 
+
+  //крутим моторы на заданное кол-во шагов
+  switch (KeyCode) {
+    case DCM_KEY_CW:
+      DcmIn1.start();
+      DcmIn2.stop();
+      DcmCurrentDirection = true;
+      _startTime = millis();
+    break;
+    case DCM_KEY_CCW:
+      DcmIn2.start();
+      DcmIn1.stop();
+      DcmCurrentDirection = false;
+      _startTime = millis();
+    break;
+  }
+  
+  //возвращаем текущее положение мотора
+  return (DcmIn1.getState() != DcmIn2.getState());
 }
 
 #endif

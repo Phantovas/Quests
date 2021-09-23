@@ -51,14 +51,20 @@ void setup() {
   //ускорение без него как-то странно себя ведет двиг
   Stm3.setAcceleration(0);
 
+  // коллекторный мотор, т.к. управляется двумя реле, то активируем их в режиме оключено
+  DcmIn1.begin(FE_STOP);
+  DcmIn2.begin(FE_STOP);
+  DcmTimeForward = constrain(DcmTimeForward, DCM_MIN_PERIOD, DCM_MAX_PERIOD);
+  DcmTimeBackward = constrain(DcmTimeBackward, DCM_MIN_PERIOD, DCM_MAX_PERIOD);
+
 }
 
 void loop() {
 
 #ifdef DEBUG  
-  static uint16_t _intKeyCode = 0;
+  static unsigned long _intKeyCode = 0;
 #else
-  uint16_t _intKeyCode = 0;
+  uint16_t unsigned long = 0;
 #endif
   
   //тут опрос всех моторов на движение
@@ -98,6 +104,12 @@ void loop() {
       case 'y':
         _intKeyCode = STM3_KEY_CCW;
         break;
+      case 'u':
+        _intKeyCode = DCM_KEY_CW;
+        break;
+      case 'i':
+        _intKeyCode = DCM_KEY_CCW;
+        break;
     }
   } 
 
@@ -108,7 +120,8 @@ void loop() {
 #endif
   Stm2Working(_intKeyCode);
   Stm3Working(_intKeyCode);
+  DcmWorking(_intKeyCode);
 
-  delay(10);
+  delay(10); //НЕ УДАЛЯТЬ!
  
 }

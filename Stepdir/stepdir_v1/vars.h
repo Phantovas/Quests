@@ -8,7 +8,6 @@
 #ifndef STEPDIR_VARS_H
 #define STEPDIR_VARS_H
 
-
 // ************** Макросы *****************
 // меняем задержку на 10 мкс, иначе большой скетч не будет успевать тактировать 
 // #define DRIVER_STEP_TIME 10  
@@ -23,6 +22,11 @@
 
 //ускорение для всех моторов
 #define STEP_ACCELEREATION 500
+
+// диапазон времн вращения коллекторного двигателя (мс)
+#define DCM_MIN_PERIOD      500       
+#define DCM_MAX_PERIOD      20000
+
 // ************** Контакты **************
 // 1-й шаговый мотор
 #define STM1_STEP 2
@@ -57,6 +61,9 @@
 #define STM3_KEY_CW     0x20            //b00100000
 #define STM3_KEY_CCW    0x40            //b01000000
 
+// коллекторный мотор
+#define DCM_KEY_CW      0x80            //b10000000
+#define DCM_KEY_CCW     0x100           //b000100000000
 
 // ************** Переменные **************
 // скорости и шаги определяем переменными для возможности их изменения в процессе работы скетча
@@ -87,11 +94,11 @@ float Stm3Speed = 500;                   // скорость 3-го мотора
 GStepper<STEPPER4WIRE> Stm3(2048, 28, 25, 26, 27);
 
 // Коллекторный мотор
+bool DcmCurrentDirection;                 // текущее направление вращения (true - вперед, FALSE - реверс)
+uint16_t DcmTimeForward = 5000;           // время вращения вперед
+uint16_t DcmTimeBackward  = 10000;        // время вращения реверсом
+
 TRelay DcmIn1(DCM_IN1_PIN, nullptr);      // 1-ое реле управления
 TRelay DcmIn2(DCM_IN2_PIN, nullptr);      // 2-ое реле управления
-
-bool DcmCurrentDirection = true;          // текущее направление вращения (true - вперед, FALSE - реверс)
-uint16_t DcmTimeForward = 2000;           // время вращения вперед
-uint16_t DcmTimeRevers  = 2000;           // время вращения реверсом
 
 #endif
