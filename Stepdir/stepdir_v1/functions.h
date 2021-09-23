@@ -1,7 +1,7 @@
 /*
    functions.h 
  * @Author Vasiliy A. Ponomarjov  March 04, 2014
- * @modified Vasiliy A. Ponomarjov  September 20, 2021
+ * @modified Vasiliy A. Ponomarjov  September 23, 2021
  * @email vas@vingrad.ru  
 */
 

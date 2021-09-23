@@ -1,7 +1,7 @@
 /**
    vars.h 
  * @Author Vasiliy A. Ponomarjov September 20, 2021
- * @modified Vasiliy A. Ponomarjov September 21, 2021
+ * @modified Vasiliy A. Ponomarjov September 23, 2021
  * @email vas@vingrad.ru
 */
 
@@ -28,20 +28,20 @@
 #define DCM_MAX_PERIOD      20000
 
 // ************** Контакты **************
+
+//! ПИН 2 не занимать на него вешается RCSwitch !
+
 // 1-й шаговый мотор
-#define STM1_STEP 2
-#define STM1_DIR  3
-#define STM1_EN   4
+#define STM1_STEP 4
+#define STM1_DIR  5
 
 // 2-й шаговый мотор
-#define STM2_STEP 5
-#define STM2_DIR  6
-#define STM2_EN   7
+#define STM2_STEP 6
+#define STM2_DIR  7
 
 // 3-й шаговый мотор
 #define STM3_STEP 8
 #define STM3_DIR  9
-#define STM3_EN   10
 
 // Реле коллекторного мотора
 #define DCM_IN1_PIN 11                  // первое реле мотора
@@ -100,5 +100,8 @@ uint16_t DcmTimeBackward  = 10000;        // время вращения рев�
 
 TRelay DcmIn1(DCM_IN1_PIN, nullptr);      // 1-ое реле управления
 TRelay DcmIn2(DCM_IN2_PIN, nullptr);      // 2-ое реле управления
+
+// пульт управления !ИСПОЛЬЗУЕТ ПРЕРЫВАНИЕ НА ПИНЕ 2!
+RCSwitch mainSwitch = RCSwitch(); 
 
 #endif

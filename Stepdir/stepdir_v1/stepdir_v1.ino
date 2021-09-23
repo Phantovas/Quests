@@ -1,11 +1,11 @@
 /**
    stepdir.ino
  * @Author Vasiliy A. Ponomarjov September 20, 2021
- * @modified Vasiliy A. Ponomarjov September 21, 2021
+ * @modified Vasiliy A. Ponomarjov September 23, 2021
  * @email vas@vingrad.ru
 */
 
-#define DEBUG
+// #define DEBUG
 
 /**
 * Системные модули
@@ -16,6 +16,7 @@
  * Библиотеки
  */
 #include <GyverStepper.h>
+#include <RCSwitch.h>
 
 /**
  * Модули
@@ -57,71 +58,33 @@ void setup() {
   DcmTimeForward = constrain(DcmTimeForward, DCM_MIN_PERIOD, DCM_MAX_PERIOD);
   DcmTimeBackward = constrain(DcmTimeBackward, DCM_MIN_PERIOD, DCM_MAX_PERIOD);
 
+  // активируем пульт управления 
+  mainSwitch.enableReceive(0);
 }
 
 void loop() {
-
-#ifdef DEBUG  
-  static unsigned long _intKeyCode = 0;
-#else
-  uint16_t unsigned long = 0;
-#endif
+  unsigned long _intKeyCode = 0;
   
-  //тут опрос всех моторов на движение
+  // тут опрос всех моторов на движение
   Stm1.tick();
   Stm2.tick();
   Stm3.tick();
 
-  //опрос клавиатуры
-  if (Serial.available()) {
-    char ch = Serial.read();
+  // опрос клавиатуры
+ if (mainSwitch.available()) {
 #ifdef DEBUG
-  Serial.print("Enter char ");
-  Serial.println(ch);
-#endif 
-    switch (ch) {
-      case '0': 
-        _intKeyCode = 0;
-      break; 
-      case 'a': 
-        _intKeyCode = STM1_KEY_MODE;
-        break;
-      case 'q':
-        _intKeyCode = STM1_KEY_CW;
-        break;
-      case 'w':
-        _intKeyCode = STM1_KEY_CCW;
-        break;
-      case 'e':
-        _intKeyCode = STM2_KEY_CW;
-        break;
-      case 'r':
-        _intKeyCode = STM2_KEY_CCW;
-        break;
-      case 't':
-        _intKeyCode = STM3_KEY_CW;
-        break;
-      case 'y':
-        _intKeyCode = STM3_KEY_CCW;
-        break;
-      case 'u':
-        _intKeyCode = DCM_KEY_CW;
-        break;
-      case 'i':
-        _intKeyCode = DCM_KEY_CCW;
-        break;
-    }
-  } 
+  Serial.print("Received ");
+  Serial.print(mainSwitch.getReceivedValue()); 
+#endif   
+    _intKeyCode = mainSwitch.getReceivedValue();
+    mainSwitch.resetAvailable();
+  }   
 
+  // работа моторов
   Stm1Working(_intKeyCode);
-#ifdef DEBUG
-  if (_intKeyCode == STM1_KEY_MODE) 
-    _intKeyCode = 0;
-#endif
   Stm2Working(_intKeyCode);
   Stm3Working(_intKeyCode);
   DcmWorking(_intKeyCode);
 
   delay(10); //НЕ УДАЛЯТЬ!
- 
-}
+ }
