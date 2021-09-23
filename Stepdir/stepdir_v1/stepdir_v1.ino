@@ -30,7 +30,7 @@ void setup() {
   Serial.begin(9600);
 #endif  
 
-  //2-й мотор
+  //1-й мотор
   Stm1.setRunMode(KEEP_SPEED);
   //устанавливаем скорость
   Stm1Speed = constrain(Stm1Speed, _MIN_SPEED_FP, MAX_STEP_SPEED);
@@ -43,37 +43,60 @@ void setup() {
   Stm1Speed = constrain(Stm2Speed, _MIN_SPEED_FP, MAX_STEP_SPEED);
   //ускорение без него как-то странно себя ведет двиг
   Stm1.setAcceleration(500);
+
+  //3-й мотор
+  Stm3.setRunMode(KEEP_SPEED);
+  //устанавливаем скорость
+  Stm3Speed = constrain(Stm3Speed, _MIN_SPEED_FP, MAX_STEP_SPEED);
+  //ускорение без него как-то странно себя ведет двиг
+  Stm3.setAcceleration(0);
+
 }
 
 void loop() {
 
-  uint16_t _intKeyCode = 0;
+  static uint16_t _intKeyCode = 0;
   
   //тут опрос всех моторов на движение
   Stm1.tick();
   Stm2.tick();
-  // Stm3.tick();
+  Stm3.tick();
 
   //опрос клавиатуры
   if (Serial.available()) {
     char ch = Serial.read();
+#ifdef DEBUG
+    Serial.println(ch);
+#endif
     switch (ch) {
-    case 'q':
-      _intKeyCode = STM1_KEY_CW;
-      break;
-    case 'w':
-      _intKeyCode = STM1_KEY_CCW;
-      break;
-    case 'e':
-      _intKeyCode = STM2_KEY_CW;
-      break;
-    case 'r':
-      _intKeyCode = STM2_KEY_CCW;
-      break;
+      case '0': 
+        _intKeyCode = 0;
+      break; 
+      case 'q':
+        _intKeyCode = STM1_KEY_CW;
+        break;
+      case 'w':
+        _intKeyCode = STM1_KEY_CCW;
+        break;
+      case 'e':
+        _intKeyCode = STM2_KEY_CW;
+        break;
+      case 'r':
+        _intKeyCode = STM2_KEY_CCW;
+        break;
+      case 't':
+        _intKeyCode = STM3_KEY_CW;
+        break;
+      case 'y':
+        _intKeyCode = STM3_KEY_CCW;
+        break;
     }
-  }
+  } 
 
   Stm1Working(_intKeyCode);
   Stm2Working(_intKeyCode);
+  Stm3Working(_intKeyCode);
+
+  delay(10);
  
 }

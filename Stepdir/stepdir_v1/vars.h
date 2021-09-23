@@ -49,8 +49,8 @@
 #define STM2_KEY_CCW    0x08  //b00001000
 
 // 3-й мотор
-#define STM3_KEY_CW     0x16  //b00010000
-#define STM3_KEY_CCW    0x32  //b00100000
+#define STM3_KEY_CW     0x10  //b00010000
+#define STM3_KEY_CCW    0x20  //b00100000
 
 
 // ************** Переменные **************
@@ -58,22 +58,26 @@
 // 1-й шаговый мотор 
 long Stm1Steps = 1000;                  // число шагов 1-го мотора
 float Stm1Speed = 500;                  // скорость 1-го мотора
-bool Stm1Dir = true;                    // направление вращения (true - CW; false- CCW)
+bool Stm1Reverse = false;               // направление вращения (true - CW; false- CCW)
 GS_runMode Stm1Mode = KEEP_SPEED;       // режим работы движка
 
-//GStepper<STEPPER4WIRE> Stm1(4076, 17, 15, 16, 14);
-GStepper<STEPPER4WIRE> Stm1(4076, 21, 18, 19, 20);
+GStepper<STEPPER4WIRE> Stm1(2048, 21, 18, 19, 20);
+//GStepper<STEPPER4WIRE> Stm1(2048, 17, 15, 16, 14);
 
 // 2-й шаговый мотор 
-long Stm2Steps = 1000;    // число шагов 2-го мотора
-float Stm2Speed = 500;    // скорость 2-го мотора
-bool Stm2Dir = true;      // направление вращения (true - CW; false- CCW)
+long Stm2Steps = 1000;                  // число шагов 2-го мотора
+float Stm2Speed = 500;                  // скорость 2-го мотора
+bool Stm2Reverse = false;               // направление вращения (true - CW; false- CCW)
 
-GStepper<STEPPER4WIRE> Stm2(4076, 17, 15, 16, 14);
+GStepper<STEPPER4WIRE> Stm2(2048, 17, 15, 16, 14);
+// GStepper<STEPPER4WIRE> Stm2(2048, 25, 22, 23, 24);
 
 // 3-й шаговый мотор 
-float Stm3Speed = 500;   // скорость 3-го мотора
-bool Stm3Dir = true;     // направление вращения (true - CW; false- CCW)
+uint8_t Stm3Steps = 1;                   // число шагов 3-го мотора за одно нажатие клавиши
+float Stm3Speed = 500;                  // скорость 3-го мотора
+
+// GStepper<STEPPER4WIRE> Stm3(2048, 17, 15, 16, 14);
+GStepper<STEPPER4WIRE> Stm3(2048, 28, 25, 26, 27);
 
 // Коллекторный мотор
 TRelay DcmIn1(DCM_IN1_PIN, nullptr);    // 1-ое реле управления
