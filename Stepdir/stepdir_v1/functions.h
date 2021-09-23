@@ -29,6 +29,7 @@ bool Stm1Working(uint16_t KeyCode) {
     // если крутимся, то надо остановиться
     if (_state) 
       Stm1.brake();
+
     // меняем режим
     if (Stm1Mode == FOLLOW_POS) {
       Stm1Mode = KEEP_SPEED;
@@ -42,12 +43,11 @@ bool Stm1Working(uint16_t KeyCode) {
       //ускорение восстанавливаем для режима следования
       Stm1.setAcceleration(STEP_ACCELEREATION);
     }
+
     //меняем тип движения и скорость
     Stm1.setRunMode(Stm1Mode);
     Stm1.setSpeed(Stm1Speed);
-#ifdef DEBUG
-    Serial.println("STM1_KEY_MODE ");
-#endif 
+
     //выходим с текущим состоянием мотора 
     return Stm1.getState();
   }
@@ -77,26 +77,18 @@ bool Stm1Working(uint16_t KeyCode) {
       Stm1.stop();
     } else {
       Stm1.setSpeed(Stm1Speed);
-#ifdef DEBUG
-    Serial.print("SetSpeed ");
-#endif 
     }
     //крутим моторы на заданное кол-во шагов
     switch (KeyCode) {
       case STM1_KEY_CW:
-#ifdef DEBUG
-    Serial.println("CW ");
-#endif 
         Stm1.setTarget(Stm1StepsManual, RELATIVE);
       break;
       case STM1_KEY_CCW:
-#ifdef DEBUG
-    Serial.println("CCW ");
-#endif 
         Stm1.setTarget(-1 * Stm1StepsManual, RELATIVE);
       break;
     }
   }
+  
   // возвращаем состояние мотора    
   return Stm1.getState();
 }
@@ -129,6 +121,7 @@ bool Stm2Working(uint16_t KeyCode) {
       Stm2.setTarget(Stm2Steps, RELATIVE);
     break;
   }
+  
   //возвращаем состояние мотора
   return Stm2.getState();
 }
@@ -156,6 +149,7 @@ long Stm3Working(uint16_t KeyCode) {
       Stm3.setTarget(-1 * Stm3Steps, RELATIVE);
     break;
   }
+  
   //возвращаем текущее положение мотора
   return Stm3.getTarget();
 }
