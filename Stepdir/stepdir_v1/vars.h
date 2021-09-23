@@ -8,8 +8,6 @@
 #ifndef STEPDIR_VARS_H
 #define STEPDIR_VARS_H
 
-#define DRIVER_STEP_TIME 10  // меняем задержку на 10 мкс
-
 // ************** Контакты **************
 // 1-й шаговый мотор
 #define STM1_STEP 2
@@ -31,12 +29,29 @@
 #define DCM_IN2_PIN 12  // второе реле мотора
 
 // ************** Макросы *****************
+// меняем задержку на 10 мкс, иначе большой скетч не будет успевать тактировать 
+#define DRIVER_STEP_TIME 10  
+
 // Если нужен алгоритм ускорения "Модифицированный алгоритм из библиотеки AccelStepper" для библиотеки см. https://alexgyver.ru/gyverstepper/
 // то необходимо раскоментировать строку
 // #define SMOOTH_ALGORITHM
 // максимальная скорость мотора, по возмолжностям  библиотеки 30000, но это 
 // в случае, когда нет кода практически никакого. Поэтому отсановимся на 10000 
-#define MAX_STEP_SPEED 10000    
+#define MAX_STEP_SPEED 10000   
+
+// ************** Клавиши ******************
+// 1-й мотор
+#define STM1_KEY_CW     0x01  //b00000001
+#define STM1_KEY_CCW    0x02  //b00000010
+
+// 2-й мотор
+#define STM2_KEY_CW     0x04  //b00000100
+#define STM2_KEY_CCW    0x08  //b00001000
+
+// 3-й мотор
+#define STM3_KEY_CW     0x16  //b00010000
+#define STM3_KEY_CCW    0x32  //b00100000
+
 
 // ************** Переменные **************
 // скорости и шани определяем переменными для возможности их изменения в процессе работы скетча
@@ -46,12 +61,15 @@ float Stm1Speed = 500;                  // скорость 1-го мотора
 bool Stm1Dir = true;                    // направление вращения (true - CW; false- CCW)
 GS_runMode Stm1Mode = KEEP_SPEED;       // режим работы движка
 
-GStepper<STEPPER4WIRE> Stm1(4076, 17, 15, 16, 14);
+//GStepper<STEPPER4WIRE> Stm1(4076, 17, 15, 16, 14);
+GStepper<STEPPER4WIRE> Stm1(4076, 21, 18, 19, 20);
 
 // 2-й шаговый мотор 
 long Stm2Steps = 1000;    // число шагов 2-го мотора
 float Stm2Speed = 500;    // скорость 2-го мотора
 bool Stm2Dir = true;      // направление вращения (true - CW; false- CCW)
+
+GStepper<STEPPER4WIRE> Stm2(4076, 17, 15, 16, 14);
 
 // 3-й шаговый мотор 
 float Stm3Speed = 500;   // скорость 3-го мотора

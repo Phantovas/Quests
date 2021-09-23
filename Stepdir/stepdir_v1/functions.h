@@ -16,48 +16,65 @@
  * @param uint16_t код нажатия кнопки
  * @return bool состояние мотора, крутит или стоит
  */
-bool Stm1Working( uint16_t KeyCode) {
+bool Stm1Working(uint16_t KeyCode) {
   //запоминаем последнюю нажатую клавишу
   //делаем это для одноразового изменения его параметров
   static uint16_t _prevKeyCode = 0;
 
-#ifdef DEBUG
-  Serial.print("KeyCode = ");
-  Serial.println(KeyCode);
-  Serial.print("_prevKeyCode = ");
-  Serial.println(_prevKeyCode);
-  Serial.print("Stm1Speed = ");
-  Serial.println(Stm1Speed);
-#endif
-  
   bool _state = Stm1.getState();
 
   // если нажали клавишу и не ехали, то запуск
   // иначе стоп
   switch (KeyCode) {
-    case 2:
+    case STM1_KEY_CW:
       if (KeyCode == _prevKeyCode && _state) {
         Stm1.stop(); 
       } else {
         Stm1.setSpeed(Stm1Speed);
       } 
+      _prevKeyCode = KeyCode; //запоминаем последнюю СРАБОТАВШУЮ нажатую клавишу
     break;
     
-    case 3:
+    case STM1_KEY_CCW:
       if (KeyCode == _prevKeyCode && _state) {
         Stm1.stop(); 
       } else {
-        Stm1.setSpeed(Stm1Speed * -1);
+        Stm1.setSpeed(-1 * Stm1Speed);
       } 
+      _prevKeyCode = KeyCode; //запоминаем последнюю нажатую клавишу
     break;
   }
 
-  _prevKeyCode = KeyCode; //запоминаем последнюю нажатую клавишу
-
    return Stm1.getState();
+
 }
 
+/**
+ * Функция работы первого мотора
+ * @param uint16_t код нажатия кнопки
+ * @return bool состояние мотора, крутит или стоит
+ * @doc Мотор движется вперед по нажатию кнопки STM2_KEY_CW на задданое STM1_STEPS количество шагов.
+ * Во время движения нажатия клавиш игнорируются до остановки (косяк конечно, если что пойдет не так то ой).
+ * Если мотор стоит в крайнем из положений, то повторное нажатие запускает работу от той же точки.
+ */
+bool Stm2Working(uint16_t KeyCode) {
 
+   bool _state = Stm2.getState();
+   
+   //если движемся то выходим из функции и возвращаем _state
+   if (_state) return(_state); 
+
+   switch (KeyCode) {
+    case STM2_KEY_CW:
+      Stm2.setTarget(Stm2Steps, RELATIVE);
+      Stm2Dir = true;
+    break;
+    case STM2_KEY_CCW:
+      Stm2.setTarget(-1 * Stm2Steps, RELATIVE);
+      Stm2Dir = false;
+    break;
+   }
+}
 
 
 #endif
