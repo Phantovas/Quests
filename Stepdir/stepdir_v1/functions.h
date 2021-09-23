@@ -15,38 +15,90 @@
  * Функция работы первого мотора
  * @param uint16_t код нажатия кнопки
  * @return bool состояние мотора, крутит или стоит
+ * @doc Мотор может работать в двух режимах, как второй мотор, там и как 3-й.
+ * Если нажата клавиша переключения режимов, то останавливаем мотор и меняем тип его работы.
+ * От поддержания скорости до следования к цели.
  */
-bool Stm1Working(uint16_t KeyCode) {
-  //запоминаем последнюю нажатую клавишу
-  //делаем это для одноразового изменения его параметров
-  static uint16_t _prevKeyCode = 0;
 
+bool Stm1Working(uint16_t KeyCode) {
+  // сохраняем состяоние в переменную, чтобы два раза не дергать функцию
   bool _state = Stm1.getState();
 
-  // если нажали клавишу и не ехали, то запуск
-  // иначе стоп
-  switch (KeyCode) {
-    case STM1_KEY_CW:
-      if (KeyCode == _prevKeyCode && _state) {
-        Stm1.stop(); 
-      } else {
-        Stm1.setSpeed(Stm1Speed);
-      } 
-      _prevKeyCode = KeyCode; //запоминаем последнюю СРАБОТАВШУЮ нажатую клавишу
-    break;
-    
-    case STM1_KEY_CCW:
-      if (KeyCode == _prevKeyCode && _state) {
-        Stm1.stop(); 
-      } else {
-        Stm1.setSpeed(-1 * Stm1Speed);
-      } 
-      _prevKeyCode = KeyCode; //запоминаем последнюю нажатую клавишу
-    break;
+  // проверяем нажатие на смену режима работы
+  if (KeyCode == STM1_KEY_MODE) {
+    // если крутимся, то надо остановиться
+    if (_state) 
+      Stm1.brake();
+    // меняем режим
+    if (Stm1Mode == FOLLOW_POS) {
+      Stm1Mode = KEEP_SPEED;
+      // в этом режиме реверс не нужен 
+      Stm1Reverse = false;
+      Stm1.reverse(Stm1Reverse);
+      //ускорение тоже не нужно, иначе с задержкой реагируем на нажатие
+      Stm1.setAcceleration(0);
+    } else {
+      Stm1Mode = FOLLOW_POS;
+      //ускорение восстанавливаем для режима следования
+      Stm1.setAcceleration(STEP_ACCELEREATION);
+    }
+    //меняем тип движения и скорость
+    Stm1.setRunMode(Stm1Mode);
+    Stm1.setSpeed(Stm1Speed);
+#ifdef DEBUG
+    Serial.println("STM1_KEY_MODE ");
+#endif 
+    //выходим с текущим состоянием мотора 
+    return Stm1.getState();
   }
 
-   return Stm1.getState();
+  //отрабатываем нажатия кнопок, раз сюда попали, значит кнопка не изменения режима
+  if (Stm1Mode == FOLLOW_POS) {
+    //если крутимся, то ничего не делаем
+    if (_state) 
+      return _state;
 
+    //обрабатываем кнопки  
+    switch (KeyCode) {
+      case STM1_KEY_CW:
+        Stm1Reverse = false;
+        Stm1.reverse(Stm1Reverse);
+        Stm1.setTarget(Stm1StepsAuto, RELATIVE);
+      break;
+      case STM1_KEY_CCW:
+        Stm1Reverse = true;
+        Stm1.reverse(Stm1Reverse);
+        Stm1.setTarget(Stm1StepsAuto, RELATIVE);
+      break;
+    }
+  } else {
+    // если кнопки не нажаты, то останавливаем двигатель
+    if (KeyCode == 0) {
+      Stm1.stop();
+    } else {
+      Stm1.setSpeed(Stm1Speed);
+#ifdef DEBUG
+    Serial.print("SetSpeed ");
+#endif 
+    }
+    //крутим моторы на заданное кол-во шагов
+    switch (KeyCode) {
+      case STM1_KEY_CW:
+#ifdef DEBUG
+    Serial.println("CW ");
+#endif 
+        Stm1.setTarget(Stm1StepsManual, RELATIVE);
+      break;
+      case STM1_KEY_CCW:
+#ifdef DEBUG
+    Serial.println("CCW ");
+#endif 
+        Stm1.setTarget(-1 * Stm1StepsManual, RELATIVE);
+      break;
+    }
+  }
+  // возвращаем состояние мотора    
+  return Stm1.getState();
 }
 
 /**
@@ -61,23 +113,24 @@ bool Stm2Working(uint16_t KeyCode) {
   // сохраняем состяоние в переменную, чтобы два раза не дергать функцию
   bool _state = Stm2.getState();
     // если движемся то выходим из функции и возвращаем _state
-  if (_state) return(_state); 
+  if (_state) 
+    return(_state); 
 
   // крутим моторы на заданное кол-во шагов
   switch (KeyCode) {
-   case STM2_KEY_CW:
-     Stm2Reverse = false;
-     Stm2.reverse(Stm2Reverse);
-     Stm2.setTarget(Stm2Steps, RELATIVE);
-   break;
-   case STM2_KEY_CCW:
-     Stm2Reverse = true;
-     Stm2.reverse(Stm2Reverse);
-     Stm2.setTarget(Stm2Steps, RELATIVE);
-   break;
+    case STM2_KEY_CW:
+      Stm2Reverse = false;
+      Stm2.reverse(Stm2Reverse);
+      Stm2.setTarget(Stm2Steps, RELATIVE);
+    break;
+    case STM2_KEY_CCW:
+      Stm2Reverse = true;
+      Stm2.reverse(Stm2Reverse);
+      Stm2.setTarget(Stm2Steps, RELATIVE);
+    break;
   }
-
-  return Stm1.getState();
+  //возвращаем состояние мотора
+  return Stm2.getState();
 }
 
 /**
@@ -96,14 +149,14 @@ long Stm3Working(uint16_t KeyCode) {
   
   //крутим моторы на заданное кол-во шагов
   switch (KeyCode) {
-   case STM3_KEY_CW:
-     Stm3.setTarget(Stm3Steps, RELATIVE);
-   break;
-   case STM3_KEY_CCW:
-     Stm3.setTarget(-1 * Stm3Steps, RELATIVE);
-   break;
+    case STM3_KEY_CW:
+      Stm3.setTarget(Stm3Steps, RELATIVE);
+    break;
+    case STM3_KEY_CCW:
+      Stm3.setTarget(-1 * Stm3Steps, RELATIVE);
+    break;
   }
-
+  //возвращаем текущее положение мотора
   return Stm3.getTarget();
 }
 

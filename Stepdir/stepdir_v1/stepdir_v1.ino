@@ -31,18 +31,18 @@ void setup() {
 #endif  
 
   //1-й мотор
-  Stm1.setRunMode(KEEP_SPEED);
+  Stm1.setRunMode(Stm1Mode);
   //устанавливаем скорость
   Stm1Speed = constrain(Stm1Speed, _MIN_SPEED_FP, MAX_STEP_SPEED);
   //ускорение без него как-то странно себя ведет двиг
-  Stm1.setAcceleration(0);
+  Stm1.setAcceleration(STEP_ACCELEREATION);
 
   //2-й мотор
   Stm2.setRunMode(FOLLOW_POS);
   //устанавливаем скорость
   Stm1Speed = constrain(Stm2Speed, _MIN_SPEED_FP, MAX_STEP_SPEED);
   //ускорение без него как-то странно себя ведет двиг
-  Stm1.setAcceleration(500);
+  Stm1.setAcceleration(STEP_ACCELEREATION);
 
   //3-й мотор
   Stm3.setRunMode(KEEP_SPEED);
@@ -55,7 +55,11 @@ void setup() {
 
 void loop() {
 
+#ifdef DEBUG  
   static uint16_t _intKeyCode = 0;
+#else
+  uint16_t _intKeyCode = 0;
+#endif
   
   //тут опрос всех моторов на движение
   Stm1.tick();
@@ -66,12 +70,16 @@ void loop() {
   if (Serial.available()) {
     char ch = Serial.read();
 #ifdef DEBUG
-    Serial.println(ch);
-#endif
+  Serial.print("Enter char ");
+  Serial.println(ch);
+#endif 
     switch (ch) {
       case '0': 
         _intKeyCode = 0;
       break; 
+      case 'a': 
+        _intKeyCode = STM1_KEY_MODE;
+        break;
       case 'q':
         _intKeyCode = STM1_KEY_CW;
         break;
@@ -94,6 +102,10 @@ void loop() {
   } 
 
   Stm1Working(_intKeyCode);
+#ifdef DEBUG
+  if (_intKeyCode == STM1_KEY_MODE) 
+    _intKeyCode = 0;
+#endif
   Stm2Working(_intKeyCode);
   Stm3Working(_intKeyCode);
 

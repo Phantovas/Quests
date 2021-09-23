@@ -8,6 +8,21 @@
 #ifndef STEPDIR_VARS_H
 #define STEPDIR_VARS_H
 
+
+// ************** Макросы *****************
+// меняем задержку на 10 мкс, иначе большой скетч не будет успевать тактировать 
+// #define DRIVER_STEP_TIME 10  
+
+// Если нужен алгоритм ускорения "Модифицированный алгоритм из библиотеки AccelStepper" для библиотеки см. https://alexgyver.ru/gyverstepper/
+// то необходимо раскоментировать строку
+// #define SMOOTH_ALGORITHM
+
+// максимальная скорость мотора, по возмолжностям  библиотеки 30000, но это 
+// в случае, когда нет кода практически никакого. Поэтому отсановимся на 10000 
+#define MAX_STEP_SPEED 10000   
+
+//ускорение для всех моторов
+#define STEP_ACCELEREATION 500
 // ************** Контакты **************
 // 1-й шаговый мотор
 #define STM1_STEP 2
@@ -25,66 +40,58 @@
 #define STM3_EN   10
 
 // Реле коллекторного мотора
-#define DCM_IN1_PIN 11  // первое реле мотора
-#define DCM_IN2_PIN 12  // второе реле мотора
-
-// ************** Макросы *****************
-// меняем задержку на 10 мкс, иначе большой скетч не будет успевать тактировать 
-#define DRIVER_STEP_TIME 10  
-
-// Если нужен алгоритм ускорения "Модифицированный алгоритм из библиотеки AccelStepper" для библиотеки см. https://alexgyver.ru/gyverstepper/
-// то необходимо раскоментировать строку
-// #define SMOOTH_ALGORITHM
-// максимальная скорость мотора, по возмолжностям  библиотеки 30000, но это 
-// в случае, когда нет кода практически никакого. Поэтому отсановимся на 10000 
-#define MAX_STEP_SPEED 10000   
+#define DCM_IN1_PIN 11                  // первое реле мотора
+#define DCM_IN2_PIN 12                  // второе реле мотора
 
 // ************** Клавиши ******************
 // 1-й мотор
-#define STM1_KEY_CW     0x01  //b00000001
-#define STM1_KEY_CCW    0x02  //b00000010
+#define STM1_KEY_MODE   0x01            //b00000001
+#define STM1_KEY_CCW    0x02            //b00000010
+#define STM1_KEY_CW     0x04            //b00000100
 
-// 2-й мотор
-#define STM2_KEY_CW     0x04  //b00000100
-#define STM2_KEY_CCW    0x08  //b00001000
+// 2-й мотор          
+#define STM2_KEY_CW     0x08            //b00001000
+#define STM2_KEY_CCW    0x10            //b00010000
 
-// 3-й мотор
-#define STM3_KEY_CW     0x10  //b00010000
-#define STM3_KEY_CCW    0x20  //b00100000
+// 3-й мотор          
+#define STM3_KEY_CW     0x20            //b00100000
+#define STM3_KEY_CCW    0x40            //b01000000
 
 
 // ************** Переменные **************
-// скорости и шани определяем переменными для возможности их изменения в процессе работы скетча
+// скорости и шаги определяем переменными для возможности их изменения в процессе работы скетча
+
 // 1-й шаговый мотор 
-long Stm1Steps = 1000;                  // число шагов 1-го мотора
+long Stm1StepsAuto = 1000;              // число шагов 1-го мотора в автоматическом режиме
+long Stm1StepsManual = 1;               // число шагов 1-го мотора в ручном режиме
 float Stm1Speed = 500;                  // скорость 1-го мотора
 bool Stm1Reverse = false;               // направление вращения (true - CW; false- CCW)
-GS_runMode Stm1Mode = KEEP_SPEED;       // режим работы движка
+GS_runMode Stm1Mode = FOLLOW_POS;       // режим работы движка
 
-GStepper<STEPPER4WIRE> Stm1(2048, 21, 18, 19, 20);
-//GStepper<STEPPER4WIRE> Stm1(2048, 17, 15, 16, 14);
+// GStepper<STEPPER4WIRE> Stm1(2048, 21, 18, 19, 20);
+GStepper<STEPPER4WIRE> Stm1(2048, 17, 15, 16, 14);
 
 // 2-й шаговый мотор 
 long Stm2Steps = 1000;                  // число шагов 2-го мотора
 float Stm2Speed = 500;                  // скорость 2-го мотора
 bool Stm2Reverse = false;               // направление вращения (true - CW; false- CCW)
 
-GStepper<STEPPER4WIRE> Stm2(2048, 17, 15, 16, 14);
-// GStepper<STEPPER4WIRE> Stm2(2048, 25, 22, 23, 24);
+// GStepper<STEPPER4WIRE> Stm2(2048, 17, 15, 16, 14);
+GStepper<STEPPER4WIRE> Stm2(2048, 25, 22, 23, 24);
 
 // 3-й шаговый мотор 
 uint8_t Stm3Steps = 1;                   // число шагов 3-го мотора за одно нажатие клавиши
-float Stm3Speed = 500;                  // скорость 3-го мотора
+float Stm3Speed = 500;                   // скорость 3-го мотора
 
 // GStepper<STEPPER4WIRE> Stm3(2048, 17, 15, 16, 14);
 GStepper<STEPPER4WIRE> Stm3(2048, 28, 25, 26, 27);
 
 // Коллекторный мотор
-TRelay DcmIn1(DCM_IN1_PIN, nullptr);    // 1-ое реле управления
-TRelay DcmIn2(DCM_IN2_PIN, nullptr);    // 2-ое реле управления
+TRelay DcmIn1(DCM_IN1_PIN, nullptr);      // 1-ое реле управления
+TRelay DcmIn2(DCM_IN2_PIN, nullptr);      // 2-ое реле управления
 
-bool DcmCurrentDirection = true;         // текущее направление вращения (true - вперед, FALSE - реверс)
-uint16_t DcmTimeForward = 2000;          // время вращения вперед
-uint16_t DcmTimeRevers  = 2000;          // время вращения реверсом
+bool DcmCurrentDirection = true;          // текущее направление вращения (true - вперед, FALSE - реверс)
+uint16_t DcmTimeForward = 2000;           // время вращения вперед
+uint16_t DcmTimeRevers  = 2000;           // время вращения реверсом
 
 #endif
