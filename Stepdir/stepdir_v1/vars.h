@@ -32,16 +32,16 @@
 //! ПИН 2 не занимать на него вешается RCSwitch !
 
 // 1-й шаговый мотор
-#define STM1_STEP 4
-#define STM1_DIR  5
+#define STM1_STEP_PIN 4
+#define STM1_DIR_PIN  5
 
 // 2-й шаговый мотор
-#define STM2_STEP 6
-#define STM2_DIR  7
+#define STM2_STEP_PIN 6
+#define STM2_DIR_PIN  7
 
 // 3-й шаговый мотор
-#define STM3_STEP 8
-#define STM3_DIR  9
+#define STM3_STEP_PIN 8
+#define STM3_DIR_PIN  9
 
 // Реле коллекторного мотора
 #define DCM_IN1_PIN 11                  // первое реле мотора
@@ -75,6 +75,7 @@ float Stm1Speed = 500;                  // скорость 1-го мотора
 bool Stm1Reverse = false;               // направление вращения (true - CW; false- CCW)
 GS_runMode Stm1Mode = FOLLOW_POS;       // режим работы движка
 
+// GStepper< STEPPER2WIRE> Stm1([STEPS], STM1_STEP_PIN, STM1_DIR_PIN); // STEPS - количество шагов на один оборот вала для расчётов с градусами
 // GStepper<STEPPER4WIRE> Stm1(2048, 21, 18, 19, 20);
 GStepper<STEPPER4WIRE> Stm1(2048, 17, 15, 16, 14);
 
@@ -83,6 +84,7 @@ long Stm2Steps = 1000;                  // число шагов 2-го мото
 float Stm2Speed = 500;                  // скорость 2-го мотора
 bool Stm2Reverse = false;               // направление вращения (true - CW; false- CCW)
 
+// GStepper< STEPPER2WIRE> Stm2([STEPS], STM2_STEP_PIN, STM2_DIR_PIN); // STEPS - количество шагов на один оборот вала для расчётов с градусами
 // GStepper<STEPPER4WIRE> Stm2(2048, 17, 15, 16, 14);
 GStepper<STEPPER4WIRE> Stm2(2048, 25, 22, 23, 24);
 
@@ -90,8 +92,9 @@ GStepper<STEPPER4WIRE> Stm2(2048, 25, 22, 23, 24);
 uint8_t Stm3Steps = 1;                   // число шагов 3-го мотора за одно нажатие клавиши
 float Stm3Speed = 500;                   // скорость 3-го мотора
 
+// GStepper< STEPPER2WIRE> Stm3([STEPS], STM3_STEP_PIN, STM3_DIR_PIN); // STEPS - количество шагов на один оборот вала для расчётов с градусами
 // GStepper<STEPPER4WIRE> Stm3(2048, 17, 15, 16, 14);
-GStepper<STEPPER4WIRE> Stm3(2048, 28, 25, 26, 27);
+GStepper<STEPPER4WIRE> Stm3(2048, 29, 26, 27, 28);
 
 // Коллекторный мотор
 bool DcmCurrentDirection;                 // текущее направление вращения (true - вперед, FALSE - реверс)
