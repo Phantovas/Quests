@@ -31,6 +31,12 @@ void setup() {
   Serial.begin(9600);
 #endif  
 
+  // коллекторный мотор, т.к. управляется двумя реле, то активируем их в режиме оключено
+  DcmIn1.begin();
+  DcmIn2.begin();
+  DcmTimeForward = constrain(DcmTimeForward, DCM_MIN_PERIOD, DCM_MAX_PERIOD);
+  DcmTimeBackward = constrain(DcmTimeBackward, DCM_MIN_PERIOD, DCM_MAX_PERIOD);
+
   //1-й мотор
   Stm1.setRunMode(Stm1Mode);
   //устанавливаем скорость
@@ -52,12 +58,6 @@ void setup() {
   //ускорение без него как-то странно себя ведет двиг
   Stm3.setAcceleration(0);
 
-  // коллекторный мотор, т.к. управляется двумя реле, то активируем их в режиме оключено
-  DcmIn1.begin(FE_STOP);
-  DcmIn2.begin(FE_STOP);
-  DcmTimeForward = constrain(DcmTimeForward, DCM_MIN_PERIOD, DCM_MAX_PERIOD);
-  DcmTimeBackward = constrain(DcmTimeBackward, DCM_MIN_PERIOD, DCM_MAX_PERIOD);
-
   // активируем пульт управления 
   mainSwitch.enableReceive(0);
 }
@@ -70,13 +70,13 @@ void loop() {
   Stm2.tick();
   Stm3.tick();
 
-  // опрос клавиатуры
+  // опрос пульта управления 
  if (mainSwitch.available()) {
+    _intKeyCode = mainSwitch.getReceivedValue();
 #ifdef DEBUG
   Serial.print("Received ");
-  Serial.print(mainSwitch.getReceivedValue()); 
+  Serial.print(_intKeyCode); 
 #endif   
-    _intKeyCode = mainSwitch.getReceivedValue();
     mainSwitch.resetAvailable();
   }   
 
